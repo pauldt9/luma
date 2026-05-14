@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Luma</string>
+    <string name="title_activity_add_task">AddTask</string>
+</resources>
