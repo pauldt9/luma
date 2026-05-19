@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.luma.navigation.AppNavigation
 import com.example.luma.ui.theme.LumaTheme
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

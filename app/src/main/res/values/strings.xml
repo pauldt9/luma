@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">Luma</string>
     <string name="title_activity_add_task">AddTask</string>
+
+    <!-- Auth - Comun -->
+    <string name="email_label">Correo</string>
+    <string name="email_placeholder">ejemplo@correo.com</string>
+    <string name="password_label">Contraseña</string>
+    <string name="password_placeholder">************</string>
+
+    <!-- Login -->
+    <string name="login_screen_label">Iniciar Sesión</string>
+    <string name="login_title">Iniciar Sesión</string>
+    <string name="login_button">Entrar</string>
+    <string name="forgot_password">Recuperar contraseña</string>
+    <string name="create_account_button">Crear cuenta</string>
+
+    <!-- Registro -->
+    <string name="register_screen_label">Crear cuenta</string>
+    <string name="register_title">Crear cuenta</string>
+    <string name="name_label">Nombre</string>
+    <string name="name_placeholder">Nombre completo</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+    <string name="register_button">Crear cuenta</string>
+    <string name="already_have_account">Ya tengo una cuenta</string>
 </resources>

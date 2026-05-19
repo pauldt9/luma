@@ -20,7 +20,7 @@ fun AppNavigation(){
         composable("login"){
             LoginScreen(navController)
         }
-        composable("sign-up"){
+        composable("sign_up"){
             SignUpScreen(navController)
         }
         composable("home") {
