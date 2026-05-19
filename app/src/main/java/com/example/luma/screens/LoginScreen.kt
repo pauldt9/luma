@@ -33,7 +33,7 @@ fun LoginScreen(navController: NavController){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    AppBackground {
+    AppBackground (contentAlignment = Alignment.Center){
         // Contenedor
         AuthContainer {
             Spacer(modifier = Modifier.height(20.dp))

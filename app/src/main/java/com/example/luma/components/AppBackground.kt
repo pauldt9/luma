@@ -12,13 +12,14 @@ import com.example.luma.R
 
 @Composable
 fun AppBackground(
+    contentAlignment: Alignment = Alignment.TopCenter, // Por defecto esta arriba, es modificable
     content: @Composable BoxScope.() -> Unit
 ){
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorResource(id = R.color.bg_color)),
-        contentAlignment = Alignment.Center,
+        contentAlignment = contentAlignment,
         content = content
     )
 }
