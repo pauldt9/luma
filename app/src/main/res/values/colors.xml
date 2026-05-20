@@ -6,11 +6,12 @@
     <color name="container_border">#2C2C2C</color>
     <color name="white">#FFFFFF</color>
     <color name="text_color">#DFDFDF</color>
+    <color name="subtitle_color">#767676</color>
 
     <!-- Textfield -->
     <color name="textfield_bg_col">#151515</color>
     <color name="textfield_border_col">#252525</color>
-    <color name="placeholder_col">#777777</color>
+    <color name="placeholder_col">#484848</color>
 
     <!-- Botones -->
     <color name="btn_primary_background">#E6E6E6</color>
@@ -23,5 +24,8 @@
     <color name="btn_action_text">#E6E6E6</color>
 
     <color name="btn_forgot_pass_text">#8EA4B8</color>
+
+    <!-- Barra de navegacion -->
+
 
 </resources>

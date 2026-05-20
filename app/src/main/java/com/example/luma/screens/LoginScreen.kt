@@ -27,6 +27,7 @@ import com.example.luma.components.AppBackground
 import com.example.luma.components.AuthContainer
 import com.example.luma.components.CustomButton
 import com.example.luma.components.CustomImput
+import com.example.luma.components.ScreenTitle
 
 @Composable
 fun LoginScreen(navController: NavController){
@@ -38,12 +39,7 @@ fun LoginScreen(navController: NavController){
         AuthContainer {
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                stringResource(R.string.login_title),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Medium,
-                color = colorResource(id = R.color.white)
-            )
+            ScreenTitle(stringResource(id = R.string.login_title))
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -92,16 +88,14 @@ fun LoginScreen(navController: NavController){
                 CustomButton(
                     stringResource(R.string.login_button),
                     colorResource(id = R.color.btn_primary_background),
-                    colorResource(id = R.color.btn_primary_text),
-                    {}
-                )
+                    colorResource(id = R.color.btn_primary_text)
+                ) { navController.navigate("home") }
 
                 CustomButton(
                     stringResource(R.string.register_button),
                     colorResource(id = R.color.btn_secondary_background),
-                    colorResource(id = R.color.btn_secondary_text),
-                    {}
-                )
+                    colorResource(id = R.color.btn_secondary_text)
+                ) {navController.navigate("sign_up")}
             }
         }
     }

@@ -23,4 +23,8 @@
     <string name="confirm_password_label">Confirmar contraseña</string>
     <string name="register_button">Crear cuenta</string>
     <string name="already_have_account">Ya tengo una cuenta</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting">Hola, usuario</string>
+    <string name="home_date">Insertar fecha aqui</string>
 </resources>

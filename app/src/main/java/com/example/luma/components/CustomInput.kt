@@ -80,7 +80,7 @@ fun CustomImput(
                         BasicText(
                             text = placeholder,
                             style = TextStyle(
-                                color = Color(0xFFA1A1A1),
+                                color = colorResource(id = R.color.placeholder_col),
                                 fontSize = 16.sp
                             )
                         )

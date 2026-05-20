@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import com.example.luma.R
 
+// Fondo principal de TODAS las pantallas
 @Composable
 fun AppBackground(
     contentAlignment: Alignment = Alignment.TopCenter, // Por defecto esta arriba, es modificable
