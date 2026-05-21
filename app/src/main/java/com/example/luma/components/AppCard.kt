@@ -21,6 +21,7 @@ fun AppCard(
     modifier: Modifier = Modifier, // Permite modificar el tamaño y mas propiedades
     contentPadding: PaddingValues = PaddingValues(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    onClick: () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(

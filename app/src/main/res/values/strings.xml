@@ -27,4 +27,11 @@
     <!-- Home Screen -->
     <string name="home_greeting">Hola, usuario</string>
     <string name="home_date">Insertar fecha aqui</string>
+
+    <string name="task_title">Tareas</string>
+    <string name="notes_title">Notas</string>
+    <string name="habits_title">Hábitos</string>
+    <string name="habits_subtitle">Progreso de hoy</string>
+    <string name="ai_title">Asistente virtual</string>
+    <string name="ai_subtitle">Recibe recomendaciones para\norganizar tu día.</string>
 </resources>

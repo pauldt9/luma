@@ -16,6 +16,7 @@ fun CardSubtitle(text: String){
     Text(
         text = text,
         fontSize = 14.sp,
+        lineHeight = 15.sp,
         fontWeight = FontWeight.Normal,
         color = colorResource(id = R.color.subtitle_color)
     )

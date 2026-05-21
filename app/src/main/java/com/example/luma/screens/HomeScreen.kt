@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -27,7 +28,10 @@ import androidx.navigation.NavController
 import com.example.luma.R
 import com.example.luma.components.AppBackground
 import com.example.luma.components.AppCard
+import com.example.luma.components.CardSubtitle
+import com.example.luma.components.CardTitle
 import com.example.luma.components.MainScaffold
+import com.example.luma.components.MetricValue
 import com.example.luma.components.ScreenSubtitle
 import com.example.luma.components.ScreenTitle
 
@@ -61,8 +65,10 @@ private fun HomeHeader(){
 
 @Composable
 private fun HomeBody(){
-    Column() {
-        // Card de Tareas y Notas
+    Column(
+        verticalArrangement = Arrangement.spacedBy(21.dp)
+    ) {
+        // Contenedor Tareas y Notas
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(26.dp)
@@ -73,7 +79,11 @@ private fun HomeBody(){
                     .width(160.dp)
                     .height(130.dp)
             ) {
+                CardTitle(stringResource(id = R.string.task_title))
 
+                Spacer(modifier = Modifier.height(3.dp))
+
+                MetricValue("0") // Cantidad de TAREAS en total
             }
 
             // Notas
@@ -82,17 +92,40 @@ private fun HomeBody(){
                     .width(160.dp)
                     .height(130.dp)
             ) {
+                CardTitle(stringResource(id = R.string.notes_title))
 
+                Spacer(modifier = Modifier.height(3.dp))
+
+                MetricValue("0") // Cantidad de NOTAS en total
             }
         }
 
+        // Habitos
+        AppCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+        ) {
+            CardTitle(stringResource(id = R.string.habits_title))
 
-        AppCard() {
+            Spacer(modifier = Modifier.height(14.dp))
 
+            CardSubtitle(stringResource(id = R.string.habits_subtitle))
+        }
+
+        // IA
+        AppCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp),
+        ) {
+            CardTitle(stringResource(id = R.string.ai_title))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            CardSubtitle(stringResource(id = R.string.ai_subtitle))
         }
     }
-
-
 }
 
 // Icono de usuario
@@ -109,7 +142,7 @@ private fun UserIcon() {
     ) {
         Icon(
             imageVector = Icons.Default.Person,
-            contentDescription = "Perfil",
+            contentDescription = "Profile",
             tint = colorResource(id = R.color.btn_action_text),
             modifier = Modifier.size(30.dp)
         )
