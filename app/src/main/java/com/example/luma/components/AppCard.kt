@@ -18,7 +18,7 @@ import com.example.luma.R
 
 @Composable
 fun AppCard(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, // Permite modificar el tamaño y mas propiedades
     contentPadding: PaddingValues = PaddingValues(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
