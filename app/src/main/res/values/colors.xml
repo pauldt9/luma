@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Colores principales -->
+    <color name="bg_color">#181818</color>
+    <color name="container_bg">#202020</color>
+    <color name="container_border">#2C2C2C</color>
+    <color name="white">#FFFFFF</color>
+    <color name="text_color">#DFDFDF</color>
+    <color name="subtitle_color">#767676</color>
+
+    <!-- Textfield -->
+    <color name="textfield_bg_col">#151515</color>
+    <color name="textfield_border_col">#252525</color>
+    <color name="placeholder_col">#484848</color>
+
+    <!-- Botones -->
+    <color name="btn_primary_background">#E6E6E6</color>
+    <color name="btn_secondary_background">#171717</color>
+    <color name="btn_action_background">#252525</color>
+
+    <!-- Texto en botones -->
+    <color name="btn_primary_text">#1A1A1A</color>
+    <color name="btn_secondary_text">#D0D0D0</color>
+    <color name="btn_action_text">#E6E6E6</color>
+
+    <color name="btn_forgot_pass_text">#8EA4B8</color>
+
+    <!-- Barra de navegacion -->
+
+
 </resources>
