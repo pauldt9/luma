@@ -33,7 +33,8 @@ fun AppCard(
         border = BorderStroke(
             width = 1.dp,
             color = colorResource(id = R.color.container_border)
-        )
+        ),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier

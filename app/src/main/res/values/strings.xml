@@ -34,4 +34,12 @@
     <string name="habits_subtitle">Progreso de hoy</string>
     <string name="ai_title">Asistente virtual</string>
     <string name="ai_subtitle">Recibe recomendaciones para\norganizar tu día.</string>
+
+    <!-- Barra de navegacion -->
+    <string name="home_label">Inicio</string>
+    <string name="task_label">Tareas</string>
+    <string name="notes_label">Notas</string>
+    <string name="habits_label">Hábitos</string>
+    <string name="ai_label">IA</string>
+
 </resources>

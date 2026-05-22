@@ -31,7 +31,13 @@ fun MainScaffold(
             bottomBar = {
                 // Barra de navegacion
 
-                Box() {
+                Box(
+                    modifier = Modifier.padding(
+                        start = 17.dp,
+                        end = 17.dp,
+                        bottom = 25.dp
+                    )
+                ) {
                     AppBottomBar(
                         selectedItem = selectedItem,
                         onItemClick = onBottomItemClick

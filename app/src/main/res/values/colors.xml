@@ -28,5 +28,8 @@
     <!-- Barra de navegacion -->
     <color name="bar_bg">#1E1E1E</color>
     <color name="bar_border">#2E2E2E</color>
+    <color name="selected_item">#D7D7D7</color>
+    <color name="unselected_item">#8A8A8A</color>
+    <color name="selected_item_circle">#2A2A2A</color>
 
 </resources>

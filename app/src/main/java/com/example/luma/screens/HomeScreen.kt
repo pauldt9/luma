@@ -48,7 +48,12 @@ fun HomeScreen(navController: NavController){
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        HomeBody()
+        HomeBody(
+            onTaskClick = { navController.navigate("task") },
+            onNotesClick = { navController.navigate("notes") },
+            onHabitsClick = { navController.navigate("habits") },
+            onAiClick = { navController.navigate("ai") }
+        )
     }
 }
 
@@ -70,7 +75,12 @@ private fun HomeHeader(){
 }
 
 @Composable
-private fun HomeBody(){
+private fun HomeBody(
+    onTaskClick: () -> Unit,
+    onNotesClick: () -> Unit,
+    onHabitsClick: () -> Unit,
+    onAiClick: () -> Unit
+){
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
     ) {
@@ -83,7 +93,8 @@ private fun HomeBody(){
             AppCard(
                 modifier = Modifier
                     .weight(1f)
-                    .height(130.dp)
+                    .height(130.dp),
+                onClick = onTaskClick
             ) {
                 CardTitle(stringResource(id = R.string.task_title))
 
@@ -96,7 +107,8 @@ private fun HomeBody(){
             AppCard(
                 modifier = Modifier
                     .weight(1f)
-                    .height(130.dp)
+                    .height(130.dp),
+                onClick = onNotesClick
             ) {
                 CardTitle(stringResource(id = R.string.notes_title))
 
@@ -110,7 +122,8 @@ private fun HomeBody(){
         AppCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(130.dp)
+                .height(130.dp),
+            onClick = onHabitsClick
         ) {
             CardTitle(stringResource(id = R.string.habits_title))
 
@@ -124,6 +137,7 @@ private fun HomeBody(){
             modifier = Modifier
                 .fillMaxWidth()
                 .height(130.dp),
+            onClick = onAiClick
         ) {
             CardTitle(stringResource(id = R.string.ai_title))
 
