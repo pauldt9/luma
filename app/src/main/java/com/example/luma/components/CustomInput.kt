@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -33,7 +31,8 @@ fun CustomImput(
     value: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    isPassword: Boolean
+    isPassword: Boolean,
+    errorMessage: String? = null
 ){
     Column(
         modifier = Modifier
@@ -43,7 +42,7 @@ fun CustomImput(
         BasicText(
             text = label,
             style = TextStyle(
-                color = colorResource(id = R.color.text_color),
+                color = if (errorMessage != null) Color.Red else colorResource(id = R.color.text_color),
                 fontSize = 14.sp
             ),
             modifier = Modifier.padding(bottom = 4.dp)
@@ -67,7 +66,7 @@ fun CustomImput(
                         .height(40.dp)
                         .border(
                             width = 1.dp,
-                            color = colorResource(id = R.color.textfield_border_col),
+                            color = if (errorMessage != null) Color.Red else colorResource(id = R.color.textfield_border_col),
                             shape = RoundedCornerShape(10.dp)
                         )
                         .background(
@@ -89,5 +88,16 @@ fun CustomImput(
                 }
             }
         )
+        
+        if (errorMessage != null) {
+            BasicText(
+                text = errorMessage,
+                style = TextStyle(
+                    color = Color.Red,
+                    fontSize = 12.sp
+                ),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }
