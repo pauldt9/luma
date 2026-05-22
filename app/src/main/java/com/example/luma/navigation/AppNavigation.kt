@@ -17,18 +17,33 @@ import com.example.luma.screens.NotesScreen
 import com.example.luma.screens.ProfileScreen
 import com.example.luma.screens.SignUpScreen
 import com.example.luma.screens.TaskScreen
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun AppNavigation(){
+    // Controlador de navegación
     val navController = rememberNavController()
+    
+    // Forzar el cierre de sesión para limpiar el estado persistente(temporal)
+    Firebase.auth.signOut()
 
-    NavHost(navController, startDestination = "login"){
+    // Obtiene al usuario autenticado actualmente (sujeto a cambios)
+    val currentUser = Firebase.auth.currentUser
+    // Pantalla inicial
+    // "Home" si hay sesión iniciada, de lo contrario "Login"
+    val startDestination = if (currentUser != null) "home" else "login"
+
+    NavHost(navController, startDestination = startDestination){
+        // Pantalla de inicio de sesión
         composable("login"){
             LoginScreen(navController)
         }
+        // Pantalla de registro de usuario
         composable("sign_up"){
             SignUpScreen(navController)
         }
+        // Pantalla principal
         composable("home") {
             HomeScreen(navController)
         }
