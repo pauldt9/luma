@@ -26,6 +26,7 @@
     <color name="btn_forgot_pass_text">#8EA4B8</color>
 
     <!-- Barra de navegacion -->
-
+    <color name="bar_bg">#1E1E1E</color>
+    <color name="bar_border">#2E2E2E</color>
 
 </resources>

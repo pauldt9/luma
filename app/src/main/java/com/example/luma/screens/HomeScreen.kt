@@ -37,7 +37,13 @@ import com.example.luma.components.ScreenTitle
 
 @Composable
 fun HomeScreen(navController: NavController){
-    MainScaffold {
+    MainScaffold(
+        selectedItem = "home",
+        // Determina donde el usuario hizo clic y el navController lo dirige a la pantalla correcta
+        onBottomItemClick = { route ->
+            navController.navigate(route)
+        }
+    ) {
         HomeHeader()
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -76,7 +82,7 @@ private fun HomeBody(){
             // Tareas
             AppCard(
                 modifier = Modifier
-                    .width(160.dp)
+                    .weight(1f)
                     .height(130.dp)
             ) {
                 CardTitle(stringResource(id = R.string.task_title))
@@ -89,7 +95,7 @@ private fun HomeBody(){
             // Notas
             AppCard(
                 modifier = Modifier
-                    .width(160.dp)
+                    .weight(1f)
                     .height(130.dp)
             ) {
                 CardTitle(stringResource(id = R.string.notes_title))
