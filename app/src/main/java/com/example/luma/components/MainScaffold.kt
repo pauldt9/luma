@@ -21,7 +21,7 @@ import com.example.luma.navigation.AppBottomBar
 fun MainScaffold(
     selectedItem: String, // Indica que icono marcar en la barra de navegacion
     onBottomItemClick: (String) -> Unit,
-//    floatingActionButton: @Composable (() -> Unit)? = null, // Para un boton flotante (opcional)
+    floatingActionButton: @Composable (() -> Unit)? = null, // Para un boton flotante (opcional)
     content: @Composable ColumnScope.() -> Unit
 ){
     AppBackground {
@@ -45,9 +45,9 @@ fun MainScaffold(
                 }
             },
             // Boton flotante (+)
-//            floatingActionButton = {
-//                floatingActionButton?.invoke()
-//            }
+            floatingActionButton = {
+                floatingActionButton?.invoke()
+            }
         ) { padding ->
             Column(
                 modifier = Modifier

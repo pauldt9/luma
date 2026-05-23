@@ -32,4 +32,17 @@
     <color name="unselected_item">#8A8A8A</color>
     <color name="selected_item_circle">#2A2A2A</color>
 
+    <!-- Checkbox -->
+    <color name="checkbox_checked">#404040</color>
+    <color name="checkbox_unchecked">#343434</color>
+    <color name="checkbox_checkmark">#D7D7D7</color>
+    
+    <!-- Prioridades Tareas -->
+    <color name="priotity_high_col">#E23B3B</color>
+    <color name="priority_medium_col">#D7883A</color>
+    <color name="priority_low_col">#42A468</color>
+
+    <!-- Boton de opciones (tres puntos) -->
+    <color name="options_icon_col">#8A8A8A</color>
+
 </resources>

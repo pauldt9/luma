@@ -42,4 +42,22 @@
     <string name="habits_label">Hábitos</string>
     <string name="ai_label">IA</string>
 
+    <!-- Task Screen -->
+    <string name="pending_task_count">%1$d Tareas pendientes</string>
+    <string name="priority_high">Alta</string>
+    <string name="priority_medium">Media</string>
+    <string name="priority_low">Baja</string>
+
+    <string name="add_task_title">Agregar tarea</string>
+    <string name="task_name_input_label">Nombre de la tarea</string>
+    <string name="task_priority_input_label">Prioridad</string>
+    <string name="task_date_input_label">Fecha limite</string>
+    <string name="add_task_btn">Agregar</string>
+
+    <string name="edit_task_title">Editar tarea</string>
+
+    <!-- Menu de opciones -->
+    <string name="edit_option">Editar</string>
+    <string name="delete_option">Eliminar</string>
+
 </resources>
