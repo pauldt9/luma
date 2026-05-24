@@ -102,8 +102,10 @@ fun TaskScreen(navController: NavController){
     }
 }
 
-// Titulo y subtitulo, muestra la cantidad de tareas pendientes.
-// Recibe la lista de tareas y muestra las tareas pendientes
+/*Titulo y subtitulo. muestra la cantidad de tareas pendientes.
+* Recibe la lista de tareas y muestra las tareas pendientes
+* Ejemplo: "3" Tareas pendientes
+* */
 @Composable
 private fun TaskHeader(tasks: List<Task>){
     // Solamente cuenta las tareas pendientes
@@ -234,10 +236,10 @@ private fun TaskContainer(
     }
 }
 
-// Agrega chip de la prioridad de la tarea
+// Agrega "chip" de la prioridad de la tarea
 @Composable
 private fun PriorityChip(priority: TaskPriority) {
-    // Define el texto de la prioridad de la tarea
+    // Define la prioridad de la tarea
     val priorityText = when (priority) {
         TaskPriority.HIGH -> stringResource(id = R.string.priority_high)
         TaskPriority.MEDIUM -> stringResource(id = R.string.priority_medium)

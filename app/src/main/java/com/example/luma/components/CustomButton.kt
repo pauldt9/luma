@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -27,14 +28,15 @@ fun CustomButton(
     fontColor: Color,
     enabled: Boolean = true,
     isLoading: Boolean = false,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    buttonHeight: Dp = 36.dp,
     onClick: () -> Unit
 ){
     val finalBgColor = if (enabled) bgColor else bgColor.copy(alpha = 0.5f)
-    
+
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(36.dp)
+        modifier = modifier
+            .height(buttonHeight)
             .clip(RoundedCornerShape(10.dp))
             .background(finalBgColor)
             .then(

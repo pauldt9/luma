@@ -2,6 +2,11 @@
     <string name="app_name">Luma</string>
     <string name="title_activity_add_task">AddTask</string>
 
+    <!-- Botones -->
+    <string name="accept_btn">Aceptar</string>
+    <string name="save_btn">Guardar cambios</string>
+    <string name="cancel_btn">Cancelar</string>
+
     <!-- Auth - Comun -->
     <string name="email_label">Correo</string>
     <string name="email_placeholder">ejemplo@correo.com</string>
@@ -50,8 +55,9 @@
 
     <string name="add_task_title">Agregar tarea</string>
     <string name="task_name_input_label">Nombre de la tarea</string>
-    <string name="task_priority_input_label">Prioridad</string>
-    <string name="task_date_input_label">Fecha limite</string>
+    <string name="task_name_input_placeholder">Insertar tarea...</string>
+    <string name="task_priority_dropdown_label">Prioridad</string>
+    <string name="task_due_date_label">Fecha limite</string>
     <string name="add_task_btn">Agregar</string>
 
     <string name="edit_task_title">Editar tarea</string>

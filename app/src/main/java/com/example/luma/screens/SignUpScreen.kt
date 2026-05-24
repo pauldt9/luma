@@ -21,7 +21,7 @@ import com.example.luma.R
 import com.example.luma.components.AppBackground
 import com.example.luma.components.AuthContainer
 import com.example.luma.components.CustomButton
-import com.example.luma.components.CustomImput
+import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.User
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -66,7 +66,7 @@ fun SignUpScreen(navController: NavController){
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Campos de entrada para el nombre, correo y contraseña
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.name_label),
                     name,
                     stringResource(R.string.name_placeholder),
@@ -79,7 +79,7 @@ fun SignUpScreen(navController: NavController){
                     errorMessage = nameError
                 )
 
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.email_label),
                     email,
                     stringResource(R.string.email_placeholder),
@@ -92,7 +92,7 @@ fun SignUpScreen(navController: NavController){
                     errorMessage = emailError
                 )
 
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.password_label),
                     password,
                     stringResource(R.string.password_placeholder),
@@ -106,7 +106,7 @@ fun SignUpScreen(navController: NavController){
                 )
 
                 // Campo de entrada para confirmar la contraseña
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.confirm_password_label),
                     confirmPassword,
                     stringResource(R.string.password_placeholder),

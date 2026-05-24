@@ -24,7 +24,7 @@ import com.example.luma.R
 import com.example.luma.components.AppBackground
 import com.example.luma.components.AuthContainer
 import com.example.luma.components.CustomButton
-import com.example.luma.components.CustomImput
+import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -59,7 +59,7 @@ fun LoginScreen(navController: NavController){
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.email_label),
                     email,
                     stringResource(R.string.email_placeholder),
@@ -72,7 +72,7 @@ fun LoginScreen(navController: NavController){
                     errorMessage = emailError
                 )
 
-                CustomImput(
+                CustomInput(
                     stringResource(R.string.password_label),
                     password,
                     stringResource(R.string.password_placeholder),

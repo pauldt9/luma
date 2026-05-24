@@ -20,19 +20,21 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.luma.R
 
 
 @Composable
-fun CustomImput(
+fun CustomInput(
     label: String,
     value: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
     isPassword: Boolean,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    inputHeight: Dp = 40.dp
 ){
     Column(
         modifier = Modifier
@@ -63,7 +65,7 @@ fun CustomImput(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp)
+                        .height(inputHeight)
                         .border(
                             width = 1.dp,
                             color = if (errorMessage != null) Color.Red else colorResource(id = R.color.textfield_border_col),
