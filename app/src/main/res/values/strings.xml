@@ -30,7 +30,7 @@
     <string name="already_have_account">Ya tengo una cuenta</string>
 
     <!-- Home Screen -->
-    <string name="home_greeting">Hola, usuario</string>
+    <string name="home_greeting">Hola, </string>
     <string name="home_date">Insertar fecha aqui</string>
 
     <string name="task_title">Tareas</string>
@@ -55,7 +55,7 @@
 
     <string name="add_task_title">Agregar tarea</string>
     <string name="task_name_input_label">Nombre de la tarea</string>
-    <string name="task_name_input_placeholder">Insertar tarea...</string>
+    <string name="task_name_input_placeholder">Insertar tarea…</string>
     <string name="task_priority_dropdown_label">Prioridad</string>
     <string name="task_due_date_label">Fecha limite</string>
     <string name="add_task_btn">Agregar</string>

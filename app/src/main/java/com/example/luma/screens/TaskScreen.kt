@@ -3,6 +3,7 @@ package com.example.luma.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,13 +18,21 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,25 +40,48 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.luma.R
+import com.example.luma.components.AddFloatingButton
 import com.example.luma.components.CardText
 import com.example.luma.components.ItemCard
 import com.example.luma.components.MainScaffold
 import com.example.luma.components.ScreenSubtitle
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.Task
-import com.example.luma.model.TaskPriority
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import com.example.luma.components.AddFloatingButton
-
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun TaskScreen(navController: NavController){
+    val db = Firebase.firestore // Instancia de Firestore de Firebase
+    val auth = Firebase.auth // Instancia de autenticación de Firebase
+    val currentUser = auth.currentUser // Obtiene el usuario actual
+    val context = LocalContext.current // Contexto de la aplicación, para mostrar mensajes
+
+    // Lista de tareas
+    val tasks = remember { mutableStateListOf<Task>() }
+
+    // Cargar las tareas de Firestore cuando el usuario cambia
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            db.collection("tasks")
+                .whereEqualTo("userId", currentUser.uid) // Filtra por el usuario actual según su ID
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+                    if (snapshot != null) {
+                        tasks.clear()
+                        val items = snapshot.toObjects(Task::class.java)
+                        tasks.addAll(items.sortedByDescending { it.timestamp })
+                    }
+                }
+        }
+    }
+
     MainScaffold(
         selectedItem = "task",
         onBottomItemClick = { route ->
@@ -63,53 +95,30 @@ fun TaskScreen(navController: NavController){
             )
         }
     ) {
-        var tasks by remember {
-            mutableStateOf(
-                // Lista de tareas de prueba
-                listOf(
-                    Task(1, "Contenido tarea 1", TaskPriority.HIGH, false),
-                    Task(2, "Contenido tarea 2", TaskPriority.LOW, true),
-                    Task(3, "Contenido tarea 3", TaskPriority.MEDIUM, false)
-                )
-            )
-        }
-
         TaskHeader(tasks)
-
         Spacer(modifier = Modifier.height(20.dp))
-
         TasksList(
             tasks = tasks,
-            onEditClick = {task ->
-                // Esto es cuando ya este conectado a la base de datos y busque por id
-//                navController.navigate("edit_task/${task.id}")
-                navController.navigate("edit_task")
+            onEditClick = { task ->
+                // Pasamos el ID de la tarea a la ruta de edición
+                navController.navigate("edit_task/${task.id}")
             },
-            onCheckedChange = { selectedTask, checked ->
-                // Crea una nueva lista actualizando solo la tarea seleccionada
-                tasks = tasks.map { task ->
-                    if (task.id == selectedTask.id) {
-                        task.copy(isCompleted = checked)
-                    } else {
-                        task
-                    }
-                }
+            onDeleteClick = { task ->
+                // Borramos la tarea
+                db.collection("tasks").document(task.id).delete()
+            },
+            onCheckedChange = { task, checked ->
+                // Actualizamos el estado de la tarea
+                db.collection("tasks").document(task.id).update("completed", checked) 
             }
         )
-
-
-
     }
 }
 
-/*Titulo y subtitulo. muestra la cantidad de tareas pendientes.
-* Recibe la lista de tareas y muestra las tareas pendientes
-* Ejemplo: "3" Tareas pendientes
-* */
+// Encabezado de la pantalla de tareas
 @Composable
 private fun TaskHeader(tasks: List<Task>){
-    // Solamente cuenta las tareas pendientes
-    val pendingTasksCount = tasks.count() {!it.isCompleted}
+    val pendingTasksCount = tasks.count { !it.completed }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -121,34 +130,38 @@ private fun TaskHeader(tasks: List<Task>){
     }
 }
 
-// Muestra la lista de tareas
+// Lista de tareas
 @Composable
 private fun TasksList(
     tasks: List<Task>,
     onEditClick: (Task) -> Unit,
+    onDeleteClick: (Task) -> Unit,
     onCheckedChange: (Task, Boolean) -> Unit
 ){
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(tasks){ task ->
+        items(tasks, key = { it.id }){ task ->
             TaskContainer(
                 task = task,
                 onEditClick = onEditClick,
+                onDeleteClick = onDeleteClick,
                 onCheckedChange = onCheckedChange
             )
         }
     }
 }
 
-// Genera el contenedor, contenido de la tarea, prioridad y checkbox
+// Contenedor de una tarea
 @Composable
 private fun TaskContainer(
     task: Task,
     onEditClick: (Task) -> Unit,
+    onDeleteClick: (Task) -> Unit,
     onCheckedChange: (Task, Boolean) -> Unit
 ){
     var expanded by remember { mutableStateOf(false) }
+    val isOutdated = isDateBeforeToday(task.dueDate) && !task.completed
 
     ItemCard(
         modifier = Modifier
@@ -156,11 +169,8 @@ private fun TaskContainer(
             .height(90.dp)
     ){
         Checkbox(
-            checked = task.isCompleted, // Estado actual del checkbox
-            onCheckedChange = { checked ->
-                onCheckedChange(task, checked)
-            },
-            enabled = true,
+            checked = task.completed,
+            onCheckedChange = { onCheckedChange(task, it) },
             colors = CheckboxDefaults.colors(
                 checkedColor = colorResource(id = R.color.checkbox_checked),
                 uncheckedColor = colorResource(id = R.color.checkbox_unchecked),
@@ -175,16 +185,19 @@ private fun TaskContainer(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             CardText(
-                text = task.content, // Aqui va el contenido de la tarea
-                color = colorResource(id = R.color.text_color)
+                text = task.content,
+                color = if (isOutdated) Color.Red else colorResource(id = R.color.text_color)
             )
-            PriorityChip(task.priority)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PriorityChip(task.priority)
+                if (isOutdated) {
+                    OutdatedChip()
+                }
+            }
         }
 
         IconButton(
-            onClick = {
-                expanded = true // El menu ha sido abierto
-            }
+            onClick = { expanded = true }
         ) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
@@ -194,23 +207,17 @@ private fun TaskContainer(
         }
 
         Box {
-            // Menu de opciones: Editar y Eliminar
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = {
-                    expanded = false // El usuario intento cerrar el menu
-                },
-                containerColor = colorResource(id = R.color.container_bg),
-                tonalElevation = 0.dp,
-                shadowElevation = 5.dp
+                onDismissRequest = { expanded = false },
+                containerColor = colorResource(id = R.color.container_bg)
             ) {
-                // Editar
                 DropdownMenuItem(
-                    text = {
+                    text = { 
                         Text(
                             text = stringResource(id = R.string.edit_option),
                             color = colorResource(id = R.color.text_color)
-                        )
+                        ) 
                     },
                     onClick = {
                         expanded = false
@@ -220,15 +227,10 @@ private fun TaskContainer(
 
                 // Eliminar
                 DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.delete_option),
-                            color = colorResource(id = R.color.text_color)
-                        )
-                    },
+                    text = { Text(stringResource(id = R.string.delete_option), color = Color.Red) },
                     onClick = {
                         expanded = false
-
+                        onDeleteClick(task)
                     }
                 )
             }
@@ -238,34 +240,54 @@ private fun TaskContainer(
 
 // Agrega "chip" de la prioridad de la tarea
 @Composable
-private fun PriorityChip(priority: TaskPriority) {
-    // Define la prioridad de la tarea
-    val priorityText = when (priority) {
-        TaskPriority.HIGH -> stringResource(id = R.string.priority_high)
-        TaskPriority.MEDIUM -> stringResource(id = R.string.priority_medium)
-        TaskPriority.LOW -> stringResource(id = R.string.priority_low)
+private fun PriorityChip(priority: String) {
+    val high = stringResource(id = R.string.priority_high)
+    val medium = stringResource(id = R.string.priority_medium)
+    val priorityColor = when (priority) {
+        high -> colorResource(id = R.color.priotity_high_col)
+        medium -> colorResource(id = R.color.priority_medium_col)
+        else -> colorResource(id = R.color.priority_low_col)
     }
-
-    // Define el color de acuerdo a la prioridad de la tarea
-    val priorityColor = when (priority){
-        TaskPriority.HIGH -> colorResource(id = R.color.priotity_high_col)
-        TaskPriority.MEDIUM -> colorResource(id = R.color.priority_medium_col)
-        TaskPriority.LOW -> colorResource(id = R.color.priority_low_col)
-    }
-
     Card(
         shape = RoundedCornerShape(50.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = priorityColor
-        )
+        colors = CardDefaults.cardColors(containerColor = priorityColor)
     ) {
         Text(
-            text = priorityText,
+            text = priority,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = colorResource(id = R.color.white)
+            color = Color.White
         )
     }
 }
 
+// Agrega "chip" de tarea atrasada
+@Composable
+private fun OutdatedChip() {
+    Card(
+        shape = RoundedCornerShape(50.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Red)
+    ) {
+        Text(
+            text = "Atrasada",
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
+    }
+}
+
+// Comprueba si la fecha de la tarea es anterior a la fecha actual
+private fun isDateBeforeToday(dateString: String): Boolean {
+    if (dateString.isEmpty()) return false
+    return try {
+        val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val dueDate = sdf.parse(dateString)
+        val today = sdf.parse(sdf.format(Date()))
+        dueDate?.before(today) ?: false
+    } catch (e: Exception) {
+        false
+    }
+}

@@ -1,5 +1,6 @@
 package com.example.luma.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,9 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -19,62 +25,94 @@ import com.example.luma.components.AppBackground
 import com.example.luma.components.BackButton
 import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.colorResource
 import com.example.luma.components.AppDatePicker
 import com.example.luma.components.AppDropdownMenu
 import com.example.luma.components.CustomButton
+import com.example.luma.model.Task
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun AddTaskScreen(navController: NavController){
-    var taskName by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") } // Nombre de la tarea
     var priority by remember { mutableStateOf("Baja") } // Prioridad por defecto
-    var dueDate by remember { mutableStateOf("") }
+    var dueDate by remember { mutableStateOf("") } // Fecha límite
+    var isLoading by remember { mutableStateOf(false) } // Estado de carga
+
+    val context = LocalContext.current // Contexto de la aplicación, para mostrar mensajes
+    val auth = Firebase.auth // Instancia de autenticación de Firebase
+    val db = Firebase.firestore // Instancia de Firestore de Firebase
 
     AppBackground {
         Column {
+            // Encabezado de la pantalla
             AddTaskHeader(onBackClick = {navController.popBackStack()})
 
+            // Campos de entrada para la tarea
             AddTaskInputs(
                 modifier = Modifier.padding(horizontal = 25.dp),
                 taskName = taskName,
-                onTaskNameChange = { newValue ->
-                    taskName = newValue // Guarda el valor que el usuario ha ingresado al input
-                },
+                onTaskNameChange = { taskName = it },
                 priority = priority,
-                onPriorityChange = { newValue ->
-                    priority = newValue // Guarda la prioridad que el usuario ha seleccionado
-                },
+                onPriorityChange = { priority = it },
                 dueDate = dueDate,
-                onDueDateChange = { selectedDate ->
-                    dueDate = selectedDate // Guarda la fecha seleccionada por el usuario
-                }
+                onDueDateChange = { dueDate = it }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Botón para guardar la tarea
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Boton aceptar
                 CustomButton(
                     modifier = Modifier.fillMaxWidth(0.84f),
                     text = stringResource(id = R.string.accept_btn),
                     bgColor = colorResource(id = R.color.btn_action_background),
-                    fontColor = colorResource(id = R.color.btn_action_text)
+                    fontColor = colorResource(id = R.color.btn_action_text),
+                    isLoading = isLoading,
+                    enabled = !isLoading && taskName.isNotEmpty()
                 ) {
-                    // TODO: Guardar la informacion ingresada por el usuario
-                    navController.popBackStack()
+                    val userId = auth.currentUser?.uid // Obtiene el ID del usuario autenticado
+                    // Si el usuario está autenticado, crea una nueva tarea en Firestore
+                    if (userId != null) {
+                        isLoading = true
+                        val newTaskRef = db.collection("tasks").document()
+                        val task = Task(
+                            id = newTaskRef.id,
+                            userId = userId,
+                            content = taskName,
+                            priority = priority,
+                            dueDate = dueDate,
+                            completed = false
+                        )
+
+                        // Guarda la tarea en Firestore
+                        newTaskRef.set(task)
+                            .addOnSuccessListener {
+                                isLoading = false
+                                Toast.makeText(context, "Tarea añadida", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            }
+                            // Si hay un error al guardar, muestra un mensaje de error
+                            .addOnFailureListener { e ->
+                                isLoading = false
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        // Si el usuario no está autenticado, muestra un mensaje de error
+                        Toast.makeText(context, "Inicia sesión para añadir tareas", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
 }
 
+// Encabezado de la pantalla de añadir tarea
 @Composable
 private fun AddTaskHeader(
     onBackClick: () -> Unit
@@ -92,6 +130,7 @@ private fun AddTaskHeader(
     }
 }
 
+// Campos de entrada para la tarea
 @Composable
 private fun AddTaskInputs(
     modifier: Modifier = Modifier,
@@ -106,6 +145,7 @@ private fun AddTaskInputs(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ){
+        // Campo de entrada para el nombre de la tarea
         CustomInput(
             label = stringResource(id = R.string.task_name_input_label),
             value = taskName,
@@ -115,6 +155,7 @@ private fun AddTaskInputs(
             inputHeight = 57.dp
         )
 
+        // Menú desplegable para la prioridad de la tarea
         AppDropdownMenu(
             label = stringResource(id = R.string.task_priority_dropdown_label),
             value = priority,
@@ -126,6 +167,7 @@ private fun AddTaskInputs(
             onValueChange = onPriorityChange
         )
 
+        // Selector de fecha para la fecha límite de la tarea
         AppDatePicker(
             label = stringResource(id = R.string.task_due_date_label),
             value = dueDate,

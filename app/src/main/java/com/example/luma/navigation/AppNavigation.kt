@@ -1,9 +1,11 @@
 package com.example.luma.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.luma.screens.AddHabitScreen
 import com.example.luma.screens.AddTaskScreen
 import com.example.luma.screens.AiScreen
@@ -25,25 +27,22 @@ fun AppNavigation(){
     // Controlador de navegación
     val navController = rememberNavController()
     
-    // Forzar el cierre de sesión para limpiar el estado persistente(temporal)
+    // LÍNEA PARA FORZAR CIERRE DE SESIÓN (Eliminar después de integrar manejo de perfil)
     Firebase.auth.signOut()
 
-    // Obtiene al usuario autenticado actualmente (sujeto a cambios)
+    // Obtiene al usuario autenticado actualmente
     val currentUser = Firebase.auth.currentUser
-    // Pantalla inicial
-    // "Home" si hay sesión iniciada, de lo contrario "Login"
+
+    // Pantalla inicial: "Home" si hay sesión iniciada, de lo contrario "Login"
     val startDestination = if (currentUser != null) "home" else "login"
 
     NavHost(navController, startDestination = startDestination){
-        // Pantalla de inicio de sesión
         composable("login"){
             LoginScreen(navController)
         }
-        // Pantalla de registro de usuario
         composable("sign_up"){
             SignUpScreen(navController)
         }
-        // Pantalla principal
         composable("home") {
             HomeScreen(navController)
         }
@@ -53,8 +52,18 @@ fun AppNavigation(){
         composable ("add_task") {
             AddTaskScreen(navController)
         }
-        composable ("edit_task"){
-            EditTaskScreen(navController)
+        // Ruta para editar tarea pasando el ID como parámetro
+        composable (
+            "edit_task/{taskId}",
+            // Se declara la lista de argumentos que recibirá esta ruta.
+            arguments = listOf(
+                // Se declara un argumento de tipo String llamado "taskId"
+                navArgument("taskId") {type = NavType.StringType }
+            )
+        ){ backStackEntry ->
+            // Se obtiene el valor del argumento "taskId" de la entrada de la pila de navegación
+            val taskId = backStackEntry.arguments?.getString("taskId") ?: ""
+            EditTaskScreen(navController, taskId) // Se llama a la pantalla de edición de tarea, con el ID correspondiente a la tarea
         }
         composable("notes"){
             NotesScreen(navController)
