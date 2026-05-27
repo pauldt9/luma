@@ -6,6 +6,7 @@
     <string name="accept_btn">Aceptar</string>
     <string name="save_btn">Guardar cambios</string>
     <string name="cancel_btn">Cancelar</string>
+    <string name="log_out_btn">Cerrar sesión</string>
 
     <!-- Auth - Comun -->
     <string name="email_label">Correo</string>
@@ -30,7 +31,7 @@
     <string name="already_have_account">Ya tengo una cuenta</string>
 
     <!-- Home Screen -->
-    <string name="home_greeting">Hola, </string>
+    <string name="home_greeting">Hola, %1$s</string>
     <string name="home_date">Insertar fecha aqui</string>
 
     <string name="task_title">Tareas</string>
@@ -65,5 +66,12 @@
     <!-- Menu de opciones -->
     <string name="edit_option">Editar</string>
     <string name="delete_option">Eliminar</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Usuario</string>
+
+    <!-- AI Screen -->
+    <string name="ai_prompt_label">¿Qué necesitas hoy?</string>
+    <string name="prompt_placeholder">Ayudame a organizar mi dia...</string>
 
 </resources>

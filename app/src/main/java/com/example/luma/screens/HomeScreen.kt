@@ -180,6 +180,7 @@ private fun HomeBody(
     onHabitsClick: () -> Unit,
     onAiClick: () -> Unit
 ){
+    // TODO: Mostrar la cantidad de tareas, notas y habitos creados.
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
     ) {

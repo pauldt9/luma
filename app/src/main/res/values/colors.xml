@@ -17,6 +17,7 @@
     <color name="btn_primary_background">#E6E6E6</color>
     <color name="btn_secondary_background">#171717</color>
     <color name="btn_action_background">#252525</color>
+    <color name="log_out_btn_bg">#FFBD4343</color>
 
     <!-- Texto en botones -->
     <color name="btn_primary_text">#1A1A1A</color>
@@ -44,5 +45,9 @@
 
     <!-- Boton de opciones (tres puntos) -->
     <color name="options_icon_col">#8A8A8A</color>
+
+    <!-- Chat IA -->
+    <color name="user_msg_col">#252525</color>
+    <color name="ai_msg_col">#171717</color>
 
 </resources>

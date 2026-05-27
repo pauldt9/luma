@@ -68,7 +68,7 @@ fun LoginScreen(navController: NavController){
                         // Limpia el error al escribir nuevamente en el campo de correo
                         if (emailError != null) emailError = null
                     },
-                    false,
+
                     errorMessage = emailError
                 )
 

@@ -151,7 +151,6 @@ private fun AddTaskInputs(
             value = taskName,
             placeholder = stringResource(id = R.string.task_name_input_placeholder),
             onValueChange = onTaskNameChange,
-            isPassword = false,
             inputHeight = 57.dp
         )
 

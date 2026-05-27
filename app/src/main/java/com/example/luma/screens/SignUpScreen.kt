@@ -75,7 +75,6 @@ fun SignUpScreen(navController: NavController){
                         // Limpia el error al escribir nuevamente en el campo de nombre
                         if (nameError != null) nameError = null
                     },
-                    false,
                     errorMessage = nameError
                 )
 
@@ -88,7 +87,6 @@ fun SignUpScreen(navController: NavController){
                         // Limpia el error al escribir nuevamente en el campo de correo
                         if (emailError != null) emailError = null
                     },
-                    false,
                     errorMessage = emailError
                 )
 
