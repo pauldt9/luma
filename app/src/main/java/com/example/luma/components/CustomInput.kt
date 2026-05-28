@@ -47,7 +47,7 @@ fun CustomInput(
             .fillMaxWidth()
             .padding(8.dp)
     ) {
-        // Si el label NO esta vacio o es nulo, entonces agrega un basic text
+        // Si NO esta vacio o nulo, entonces agrega un label arriba del textfield
         if (!label.isNullOrBlank()) {
             BasicText(
                 text = label,

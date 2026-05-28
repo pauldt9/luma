@@ -63,6 +63,11 @@
 
     <string name="edit_task_title">Editar tarea</string>
 
+    <!-- Notes Screen -->
+    <string name="notes_count">%1$d Notas</string>
+    <string name="title_placeholder">Título...</string>
+    <string name="content_placeholder">Escriba aqui...</string>
+
     <!-- Menu de opciones -->
     <string name="edit_option">Editar</string>
     <string name="delete_option">Eliminar</string>
