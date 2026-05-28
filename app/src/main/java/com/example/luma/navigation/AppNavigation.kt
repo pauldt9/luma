@@ -19,8 +19,8 @@ import com.example.luma.screens.NotesScreen
 import com.example.luma.screens.ProfileScreen
 import com.example.luma.screens.SignUpScreen
 import com.example.luma.screens.TaskScreen
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 
 @Composable
 fun AppNavigation(){
@@ -28,7 +28,7 @@ fun AppNavigation(){
     val navController = rememberNavController()
     
     // LÍNEA PARA FORZAR CIERRE DE SESIÓN (Eliminar después de integrar manejo de perfil)
-    Firebase.auth.signOut()
+    // Firebase.auth.signOut()
 
     // Obtiene al usuario autenticado actualmente
     val currentUser = Firebase.auth.currentUser

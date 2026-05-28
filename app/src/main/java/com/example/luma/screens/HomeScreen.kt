@@ -52,9 +52,9 @@ import com.example.luma.components.MainScaffold
 import com.example.luma.components.MetricValue
 import com.example.luma.components.ScreenSubtitle
 import com.example.luma.components.ScreenTitle
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -83,7 +83,16 @@ fun HomeScreen(navController: NavController){
     MainScaffold(
         selectedItem = "home",
         onBottomItemClick = { route ->
-            navController.navigate(route)
+            // Navega a la pantalla seleccionada
+            navController.navigate(route) {
+                // Mantener el estado de la pantalla
+                launchSingleTop = true
+                restoreState = true
+
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+            }
         }
     ) {
         HomeHeader(

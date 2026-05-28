@@ -9,7 +9,14 @@ fun HabitsScreen(navController: NavController){
     MainScaffold(
         selectedItem = "habits",
         onBottomItemClick = { route ->
-            navController.navigate(route)
+            navController.navigate(route) {
+                launchSingleTop = true
+                restoreState = true
+
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+            }
         }
     ) {
 

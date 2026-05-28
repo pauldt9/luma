@@ -29,9 +29,9 @@ import com.example.luma.components.AppDatePicker
 import com.example.luma.components.AppDropdownMenu
 import com.example.luma.components.CustomButton
 import com.example.luma.model.Task
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 @Composable
 fun AddTaskScreen(navController: NavController){

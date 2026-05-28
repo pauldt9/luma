@@ -26,9 +26,9 @@ import com.example.luma.components.ScreenTitle
 import com.example.luma.model.User
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 @Composable
 fun SignUpScreen(navController: NavController){

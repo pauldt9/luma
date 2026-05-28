@@ -28,8 +28,8 @@ import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.Firebase
 
 @Composable
 fun LoginScreen(navController: NavController){

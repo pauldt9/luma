@@ -30,8 +30,8 @@ import com.example.luma.components.CustomButton
 import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.Task
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 @Composable
 fun EditTaskScreen(navController: NavController, taskId: String){

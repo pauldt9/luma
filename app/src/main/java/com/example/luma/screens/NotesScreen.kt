@@ -9,7 +9,16 @@ fun NotesScreen(navController: NavController){
     MainScaffold(
         selectedItem = "notes",
         onBottomItemClick = { route ->
-            navController.navigate(route)
+            // Navega a la pantalla seleccionada
+            navController.navigate(route) {
+                // Mantener el estado de la pantalla
+                launchSingleTop = true
+                restoreState = true
+
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+            }
         }
     ) {
 
