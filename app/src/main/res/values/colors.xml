@@ -46,6 +46,9 @@
     <!-- Boton de opciones (tres puntos) -->
     <color name="options_icon_col">#8A8A8A</color>
 
+    <!-- Notas -->
+    <color name="date_note_col">#767676</color>
+
     <!-- Chat IA -->
     <color name="user_msg_col">#252525</color>
     <color name="ai_msg_col">#171717</color>

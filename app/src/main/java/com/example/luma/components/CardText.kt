@@ -7,6 +7,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.luma.R
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 
 /**
  * Solo para contenedores.
@@ -15,13 +16,17 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun CardText(
     text: String,
-    color: Color = colorResource(id = R.color.subtitle_color)
+    color: Color = colorResource(id = R.color.subtitle_color),
+    maxLines: Int = Int.MAX_VALUE, // No hay limite de numero de lineas
+    overflow: TextOverflow = TextOverflow.Clip // Si no cabe el texto, lo corta
 ){
     Text(
         text = text,
         fontSize = 14.sp,
         lineHeight = 15.sp,
         fontWeight = FontWeight.Normal,
-        color = color
+        color = color,
+        maxLines = maxLines,
+        overflow = overflow
     )
 }
