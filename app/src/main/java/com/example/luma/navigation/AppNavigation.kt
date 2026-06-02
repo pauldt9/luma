@@ -71,6 +71,16 @@ fun AppNavigation(){
         composable ("note_detail"){
             NoteDetailScreen(navController)
         }
+
+        // Ruta para editar tarea pasando el ID como parámetro
+        composable(
+            "note_detail/{noteId}",
+            arguments = listOf(navArgument("noteId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val noteId = backStackEntry.arguments?.getString("noteId")
+            NoteDetailScreen(navController, noteId)
+        }
+
         composable("habits"){
             HabitsScreen(navController)
         }

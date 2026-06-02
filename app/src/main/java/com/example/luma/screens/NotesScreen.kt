@@ -1,92 +1,87 @@
 package com.example.luma.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.luma.R
-import com.example.luma.components.AddFloatingButton
-import com.example.luma.components.MainScaffold
-import com.example.luma.components.ScreenSubtitle
-import com.example.luma.components.ScreenTitle
-import com.example.luma.model.Note
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.luma.R
+import com.example.luma.components.AddFloatingButton
 import com.example.luma.components.CardText
 import com.example.luma.components.CardTitle
 import com.example.luma.components.ItemCard
+import com.example.luma.components.MainScaffold
+import com.example.luma.components.ScreenSubtitle
+import com.example.luma.components.ScreenTitle
+import com.example.luma.model.Note
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 @Composable
-fun NotesScreen(navController: NavController){
+fun NotesScreen(navController: NavController) {
+    // Instancias de Firebase
+    val db = Firebase.firestore
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+
     // Lista de notas
-//    val notes = remember { mutableStateListOf<Note>() }
+    val notes = remember { mutableStateListOf<Note>() }
 
-    // Solo para pruebas, eliminarlo
-    val notes = remember {
-        mutableStateListOf(
-            Note(
-                id = 1,
-                title = "Ideas para el proyecto",
-                content = "Agregar pantalla de notas, mejorar navegación y revisar estilos antes de conectar Firebase.",
-                date = "Mayo 5"
-            ),
-            Note(
-                id = 2,
-                title = "Pendientes de programación móvil",
-                content = "Terminar los componentes reutilizables, revisar la pantalla de tareas y preparar la rama para el equipo.",
-                date = "Mayo 7"
-            ),
-            Note(
-                id = 3,
-                title = "Recordatorio",
-                content = "No olvidar hacer commit antes de cambiar de rama y revisar git status antes de hacer merge.",
-                date = "Mayo 9"
-            ),
-            Note(
-                id = 4,
-                title = "Nota con título muy largo para probar que el texto se corte correctamente",
-                content = "Este contenido también es bastante largo para verificar que el overflow con ellipsis funcione bien dentro del contenedor.",
-                date = "Mayo 12"
-            )
-        )
+    // Cargar las notas de Firestore cuando el usuario cambia
+    LaunchedEffect(currentUser) {
+        if (currentUser != null) {
+            db.collection("notes")
+                .whereEqualTo("userId", currentUser.uid) // Filtra por el usuario actual
+                .addSnapshotListener { snapshot, e -> // Escucha los cambios en la base de datos
+                    if (e != null) {
+                        return@addSnapshotListener // Si hay un error, no hacemos nada
+                    }
+
+                    // Si no hay error, actualizamos la lista de notas
+                    if (snapshot != null) {
+                        // Limpiamos la lista de notas y agregamos las nuevas notas
+                        notes.clear()
+                        val items = snapshot.toObjects(Note::class.java)
+                        notes.addAll(items.sortedByDescending { it.timestamp })
+                    }
+                }
+        } else {
+            notes.clear()
+        }
     }
-
 
     MainScaffold(
         selectedItem = "notes",
         onBottomItemClick = { route ->
-            // Navega a la pantalla seleccionada
             navController.navigate(route) {
-                // Mantener el estado de la pantalla
                 launchSingleTop = true
                 restoreState = true
 
@@ -94,40 +89,58 @@ fun NotesScreen(navController: NavController){
                     saveState = true
                 }
             }
-            navController.navigate(route)
         },
         floatingActionButton = {
             AddFloatingButton(
                 onClick = {
-                    navController.navigate("note_detail")
+                    navController.navigate("note_detail"){
+                        launchSingleTop = true
+                    }
                 }
             )
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            // Header
-            ScreenTitle(stringResource(id = R.string.notes_title))
-            ScreenSubtitle(stringResource(id = R.string.notes_count))
+        NotesHeader(notes)
 
-            Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-            // Lista de notas
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                items(notes) { note ->
-                    NoteContainer(
-                        note = note,
-                        onClick = {
-                            navController.navigate("note_detail")
-                        },
-                        onDeleteClick = {}
-                    )
-                }
+        NotesList(
+            notes = notes,
+            onEditClick = { note ->
+                navController.navigate("note_detail/${note.id}")
+            },
+            onDeleteClick = { note ->
+                db.collection("notes").document(note.id).delete()
             }
+        )
+    }
+}
+
+@Composable
+private fun NotesHeader(notes: List<Note>) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ScreenTitle(stringResource(id = R.string.notes_title))
+        ScreenSubtitle("Tienes ${notes.size} notas guardadas")
+    }
+}
+
+@Composable
+private fun NotesList(
+    notes: List<Note>,
+    onEditClick: (Note) -> Unit,
+    onDeleteClick: (Note) -> Unit
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(notes) { note ->
+            NoteContainer(
+                note = note,
+                onClick = onEditClick,
+                onDeleteClick = onDeleteClick
+            )
         }
     }
 }
@@ -137,19 +150,17 @@ private fun NoteContainer(
     note: Note,
     onClick: (Note) -> Unit,
     onDeleteClick: (Note) -> Unit
-){
+) {
     var expanded by remember { mutableStateOf(false) }
 
     ItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(90.dp),
-        onClick = { onClick(note) }, // El contenedor se hace boton
+        onClick = { onClick(note) },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
-    ){
-
-        // Titulo y contenido
+    ) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -168,14 +179,12 @@ private fun NoteContainer(
 
         Spacer(modifier = Modifier.width(15.dp))
 
-        // Fecha de creacion
         Text(
             text = note.date,
             color = colorResource(id = R.color.date_note_col),
             fontSize = 12.sp
         )
 
-        // Icono menu desplegable
         IconButton(
             onClick = { expanded = true }
         ) {
@@ -186,16 +195,32 @@ private fun NoteContainer(
             )
         }
 
-        // Boton eliminar
         Box {
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 containerColor = colorResource(id = R.color.container_bg)
             ) {
-                // Eliminar
                 DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.delete_option), color = Color.Red) },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.edit_option),
+                            color = colorResource(id = R.color.text_color)
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onClick(note)
+                    }
+                )
+
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.delete_option),
+                            color = Color.Red
+                        )
+                    },
                     onClick = {
                         expanded = false
                         onDeleteClick(note)

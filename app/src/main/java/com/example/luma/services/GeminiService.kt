@@ -5,6 +5,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
 import com.google.firebase.ai.type.content
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 object GeminiService {
 
@@ -15,6 +17,9 @@ object GeminiService {
 
     suspend fun chatWithTasks(userQuestion: String, tasks: List<Task>): String {
 
+        // Obtenemos la fecha actual
+        val today = LocalDate.now()
+
         // Filtramos tareas pendientes
         val pendingTasks = tasks.filter { !it.completed }
 
@@ -22,15 +27,27 @@ object GeminiService {
             "No hay tareas pendientes."
         } else {
             pendingTasks.joinToString("\n") { task ->
-                "- ${task.content} (Prioridad: ${task.priority}, Vence: ${task.dueDate})"
+                val isOverdue = try {
+                    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    val dueDate = LocalDate.parse(task.dueDate, formatter)
+                    dueDate.isBefore(today)
+                } catch (e: Exception) {
+                    false
+                }
+
+                val overdueText = if (isOverdue) "Está atrasada" else "No está atrasada"
+
+                "- ${task.content} (Prioridad: ${task.priority}, Vence: ${task.dueDate}, Está atrasada: $overdueText)"
             }
         }
 
         val prompt = """
             Eres Luma, un asistente de productividad inteligente.
 
-            Contexto del usuario:
+            Tareas del usuario:
             $taskText
+            
+            Instrucción importante:Si una tarea dice "Sí, está atrasada", debes mencionarlo cuando el usuario pregunte por tareas atrasadas, pendientes urgentes o qué debería hacer primero.
 
             Pregunta del usuario:
             $userQuestion
@@ -42,6 +59,7 @@ object GeminiService {
         // Llamamos a la API de Gemini
         return try {
 
+            // Generamos una respuesta
             val response = model.generateContent(
                 content {
                     text(prompt)
