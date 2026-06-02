@@ -1,6 +1,7 @@
 package com.example.luma.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,9 +21,10 @@ import com.example.luma.R
 // Crear contenedor
 @Composable
 fun AppCard(
-    modifier: Modifier = Modifier, // Permite modificar el tamaño y mas propiedades
+    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     containerColor: Color = colorResource(id = R.color.container_bg),
     containerBorder: Color = colorResource(id = R.color.container_border),
     onClick: (() -> Unit)? = null,
@@ -47,6 +49,7 @@ fun AppCard(
                     .fillMaxWidth()
                     .padding(contentPadding),
                 horizontalAlignment = horizontalAlignment,
+                verticalArrangement = verticalArrangement,
                 content = content
             )
         }

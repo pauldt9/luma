@@ -35,11 +35,19 @@
     <string name="home_date">Insertar fecha aqui</string>
 
     <string name="task_title">Tareas</string>
+    <string name="pending_tasks_home_screen">%1$d Pendientes</string>
+    <string name="completed_tasks_home_screen">%1$d Hechas · %2$d%%</string>
+
     <string name="notes_title">Notas</string>
+    <string name="last_update_notes">Ultima edición: %1$d días</string>
+
     <string name="habits_title">Hábitos</string>
+    <string name="habits_streak">Racha actual: %1$d días</string>
     <string name="habits_subtitle">Progreso de hoy</string>
+
     <string name="ai_title">Asistente virtual</string>
     <string name="ai_subtitle">Recibe recomendaciones para\norganizar tu día.</string>
+    <string name="ai_last_query">Última consulta: %1$s</string>
 
     <!-- Barra de navegacion -->
     <string name="home_label">Inicio</string>
@@ -79,4 +87,27 @@
     <string name="ai_prompt_label">¿Qué necesitas hoy?</string>
     <string name="prompt_placeholder">Ayudame a organizar mi dia...</string>
 
+    <!-- Habits Screen -->
+    <string name="add_habit_title">Agregar hábito</string>
+    <string name="edit_habit_title">Editar hábito</string>
+    <string name="habit_name_lbl">Nombre del hábito</string>
+    <string name="habit_name_placeholder">Ingrese hábito...</string>
+
+    <string name="category_lbl">Categoría</string>
+    <string name="health_category">Salud</string>
+    <string name="study_category">Estudio</string>
+    <string name="exercise_category">Ejercicio</string>
+    <string name="productivity_category">Productividad</string>
+    <string name="wellness_category">Bienestar</string>
+    <string name="personal_category">Personal</string>
+
+    <string name="frequency_lbl">Frecuencia</string>
+    <string name="daily_frec">Diario</string>
+    <string name="weekly_frec">Semanal</string>
+    <string name="monthly_frec">Mensual</string>
+
+    <string name="habits_completed">%1$d de %2$d hábitos completados</string>
+    <string name="habits_today_title">Hábitos de hoy</string>
+
+    
 </resources>
