@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,6 +30,7 @@ import com.example.luma.components.ScreenTitle
 import com.example.luma.components.AppDatePicker
 import com.example.luma.components.AppDropdownMenu
 import com.example.luma.components.CustomButton
+import com.example.luma.model.Group
 import com.example.luma.model.Task
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -38,11 +41,31 @@ fun AddTaskScreen(navController: NavController){
     var taskName by remember { mutableStateOf("") } // Nombre de la tarea
     var priority by remember { mutableStateOf("Baja") } // Prioridad por defecto
     var dueDate by remember { mutableStateOf("") } // Fecha límite
+
+    var groupName by remember { mutableStateOf("") } // Nombre del grupo al que pertenece la tarea
+    val groups = remember { mutableStateListOf<Group>() } // Lista de grupos
+
     var isLoading by remember { mutableStateOf(false) } // Estado de carga
 
     val context = LocalContext.current // Contexto de la aplicación, para mostrar mensajes
     val auth = Firebase.auth // Instancia de autenticación de Firebase
     val db = Firebase.firestore // Instancia de Firestore de Firebase
+
+    // Cargar los grupos del usuario cuando el usuario cambia
+    LaunchedEffect(auth.currentUser) {
+        val userId = auth.currentUser?.uid
+
+        if (userId != null) {
+            db.collection("groups")
+                .whereEqualTo("userId", userId)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null) {
+                        groups.clear()
+                        groups.addAll(snapshot.toObjects(Group::class.java))
+                    }
+                }
+        }
+    }
 
     AppBackground {
         Column {
@@ -57,7 +80,9 @@ fun AddTaskScreen(navController: NavController){
                 priority = priority,
                 onPriorityChange = { priority = it },
                 dueDate = dueDate,
-                onDueDateChange = { dueDate = it }
+                onDueDateChange = { dueDate = it },
+                groupName = groupName,
+                onGroupChange = { groupName = it }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -74,7 +99,7 @@ fun AddTaskScreen(navController: NavController){
                     bgColor = colorResource(id = R.color.btn_action_background),
                     fontColor = colorResource(id = R.color.btn_action_text),
                     isLoading = isLoading,
-                    enabled = !isLoading && taskName.isNotEmpty()
+                    enabled = !isLoading && taskName.isNotEmpty() && groupName.isNotEmpty()
                 ) {
                     val userId = auth.currentUser?.uid // Obtiene el ID del usuario autenticado
                     // Si el usuario está autenticado, crea una nueva tarea en Firestore
@@ -84,6 +109,7 @@ fun AddTaskScreen(navController: NavController){
                         val task = Task(
                             id = newTaskRef.id,
                             userId = userId,
+                            groupName = groupName,
                             content = taskName,
                             priority = priority,
                             dueDate = dueDate,
@@ -139,7 +165,9 @@ private fun AddTaskInputs(
     priority: String,
     onPriorityChange: (String) -> Unit,
     dueDate: String,
-    onDueDateChange: (String) -> Unit
+    onDueDateChange: (String) -> Unit,
+    groupName: String,
+    onGroupChange: (String) -> Unit
 ){
     Column (
         modifier = modifier,
@@ -164,6 +192,21 @@ private fun AddTaskInputs(
                 stringResource(id = R.string.priority_low)
             ),
             onValueChange = onPriorityChange
+        )
+
+        // Menú desplegable para el grupo al que pertenece la tarea
+        AppDropdownMenu(
+            label = "Grupo",
+            value = groupName,
+            options = listOf(
+                "Escuela",
+                "Trabajo",
+                "Personal",
+                "Salud",
+                "Ejercicio",
+                "Productividad"
+            ),
+            onValueChange = onGroupChange
         )
 
         // Selector de fecha para la fecha límite de la tarea

@@ -199,6 +199,7 @@ private fun TaskContainer(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PriorityChip(task.priority)
+                GroupChip(task.groupName)
                 if (isOutdated) {
                     OutdatedChip()
                 }
@@ -284,6 +285,27 @@ private fun OutdatedChip() {
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = Color.White
+        )
+    }
+}
+
+// Agrega "chip" del grupo al que pertenece la tarea
+@Composable
+private fun GroupChip(groupName: String) {
+    if (groupName.isBlank()) return
+
+    Card(
+        shape = RoundedCornerShape(50.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.category_chip_col)
+        )
+    ) {
+        Text(
+            text = groupName,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = colorResource(id = R.color.category_chip_text)
         )
     }
 }

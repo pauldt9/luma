@@ -22,15 +22,31 @@ import com.example.luma.components.BackButton
 import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.colorResource
 import com.example.luma.components.CustomButton
+import com.example.luma.model.Habit
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddHabitScreen(navController: NavController){
+    // Estados para los inputs
     var habitName by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf("") }
     var frequency by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    // Instancias de Firebase
+    val db = Firebase.firestore
+    val auth = Firebase.auth
+    val currentUser = auth.currentUser
+
+    // Instancia de CoroutineScope
+    val scope = rememberCoroutineScope()
 
     AppBackground {
         Column {
@@ -44,8 +60,10 @@ fun AddHabitScreen(navController: NavController){
                 modifier = Modifier.padding(horizontal = 25.dp),
                 habitName = habitName,
                 onHabitChange = { habitName = it },
-                category = category,
-                onCategoryValue = { category = it },
+                groupName = groupName,
+                onGroupValue = { groupName = it },
+                description = description,
+                onDescriptionChange = { description = it },
                 frequency = frequency,
                 onFrequencyValue = { frequency = it }
             )
@@ -64,7 +82,39 @@ fun AddHabitScreen(navController: NavController){
                     bgColor = colorResource(id = R.color.btn_action_background),
                     fontColor = colorResource(id = R.color.btn_action_text),
                     onClick = {
-                        // TODO: funcionalidad para agregar el habito
+
+                        // Valida que los campos no esten vacios
+                        if (
+                            habitName.isNotBlank() &&
+                            description.isNotBlank() &&
+                            groupName.isNotBlank() &&
+                            frequency.isNotBlank()
+                        ) {
+
+                            // Crea un nuevo habito
+                            val habitRef =
+                                db.collection("habits").document()
+
+                            // Crea un objeto Habit con los datos del habito
+                            val habit = Habit(
+                                id = habitRef.id,
+                                userId = currentUser?.uid ?: "",
+                                groupName = groupName,
+                                name = habitName,
+                                description = description,
+                                frequency = frequency
+                            )
+
+                            // Guarda el habito en Firestore
+                            scope.launch {
+
+                                // Guarda el habito en Firestore
+                                habitRef.set(habit)
+
+                                // Regresa a la pantalla anterior
+                                navController.popBackStack()
+                            }
+                        }
                     }
                 )
             }
@@ -94,8 +144,10 @@ private fun AddHabitInputs(
     modifier: Modifier = Modifier,
     habitName: String,
     onHabitChange: (String) -> Unit,
-    category: String,
-    onCategoryValue: (String) -> Unit,
+    groupName: String,
+    onGroupValue: (String) -> Unit,
+    description: String,
+    onDescriptionChange: (String) -> Unit,
     frequency: String,
     onFrequencyValue: (String) -> Unit
 ){
@@ -112,19 +164,28 @@ private fun AddHabitInputs(
             inputHeight = 57.dp
         )
 
-        // Categoria del habito
+        // Descripcion del habito
+        CustomInput(
+            label = "Descripción",
+            value = description,
+            placeholder = "Ej. Tomar 2 litros de agua",
+            onValueChange = onDescriptionChange,
+            inputHeight = 57.dp
+        )
+
+        // Grupo del habito
         AppDropdownMenu(
-            label = stringResource(id = R.string.category_lbl),
-            value = category,
+            label = "Grupo",
+            value = groupName,
             options = listOf(
-                stringResource(id = R.string.health_category),
-                stringResource(id = R.string.study_category),
-                stringResource(id = R.string.exercise_category),
-                stringResource(id = R.string.wellness_category),
-                stringResource(id = R.string.productivity_category),
-                stringResource(id = R.string.personal_category)
+                "Escuela",
+                "Trabajo",
+                "Personal",
+                "Salud",
+                "Ejercicio",
+                "Productividad"
             ),
-            onValueChange = onCategoryValue
+            onValueChange = onGroupValue
         )
 
         // Frecuencia del habito

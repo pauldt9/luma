@@ -37,7 +37,7 @@ object GeminiService {
 
                 val overdueText = if (isOverdue) "Está atrasada" else "No está atrasada"
 
-                "- ${task.content} (Prioridad: ${task.priority}, Vence: ${task.dueDate}, Está atrasada: $overdueText)"
+                "- ${task.content} (Prioridad: ${task.priority}, Vence: ${task.dueDate}, Está atrasada: $overdueText, Grupo al que pertenece: ${task.groupName})"
             }
         }
 

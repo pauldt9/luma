@@ -122,7 +122,7 @@ private fun NotesHeader(notes: List<Note>) {
         modifier = Modifier.fillMaxWidth()
     ) {
         ScreenTitle(stringResource(id = R.string.notes_title))
-        ScreenSubtitle("Tienes ${notes.size} notas guardadas")
+        ScreenSubtitle("Tienes ${notes.size} nota/s guardadas")
     }
 }
 

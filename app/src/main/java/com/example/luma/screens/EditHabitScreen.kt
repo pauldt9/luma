@@ -25,12 +25,43 @@ import com.example.luma.components.BackButton
 import com.example.luma.components.CustomButton
 import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
+import androidx.compose.runtime.LaunchedEffect
+import com.example.luma.model.Habit
+import com.google.firebase.firestore.firestore
+import com.google.firebase.Firebase
 
 @Composable
-fun EditHabitScreen(navController: NavController){
+fun EditHabitScreen(
+    navController: NavController,
+    habitId: String
+){
+    // Estados para los inputs
     var habitName by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     var frequency by remember { mutableStateOf("") }
+
+    // Instancias de Firebase
+    val db = Firebase.firestore
+
+    // Carga los datos del habito
+    LaunchedEffect(habitId) {
+
+        db.collection("habits")
+            .document(habitId)
+            .get()
+            .addOnSuccessListener { document ->
+
+                val habit = document.toObject(Habit::class.java)
+
+                if (habit != null) {
+                    habitName = habit.name
+                    description = habit.description
+                    groupName = habit.groupName
+                    frequency = habit.frequency
+                }
+            }
+    }
 
     AppBackground {
         Column {
@@ -44,8 +75,10 @@ fun EditHabitScreen(navController: NavController){
                 modifier = Modifier.padding(horizontal = 25.dp),
                 habitName = habitName,
                 onHabitChange = { habitName = it },
-                category = category,
-                onCategoryValue = { category = it },
+                description = description,
+                onDescriptionChange = { description = it },
+                groupName = groupName,
+                onGroupValue = { groupName = it },
                 frequency = frequency,
                 onFrequencyValue = { frequency = it }
             )
@@ -64,7 +97,30 @@ fun EditHabitScreen(navController: NavController){
                     bgColor = colorResource(id = R.color.btn_action_background),
                     fontColor = colorResource(id = R.color.btn_action_text),
                     onClick = {
-                        // TODO: funcionalidad para editar el habito
+
+                        // Valida que los campos no esten vacios
+                        if (
+                            habitName.isNotBlank() &&
+                            description.isNotBlank() &&
+                            groupName.isNotBlank() &&
+                            frequency.isNotBlank()
+                        ) {
+                            // Actualiza el habito
+                            val updates = mapOf(
+                                "name" to habitName,
+                                "description" to description,
+                                "groupName" to groupName,
+                                "frequency" to frequency
+                            )
+
+                            // Actualiza el habito en Firestore
+                            db.collection("habits")
+                                .document(habitId)
+                                .update(updates)
+                                .addOnSuccessListener {
+                                    navController.popBackStack()
+                                }
+                        }
                     }
                 )
             }
@@ -85,7 +141,7 @@ private fun EditHabitHeader(
             onClick = onBackClick
         )
 
-        ScreenTitle(stringResource(id = R.string.add_habit_title))
+        ScreenTitle(stringResource(id = R.string.edit_habit_title))
     }
 }
 
@@ -94,8 +150,10 @@ private fun EditHabitInputs(
     modifier: Modifier = Modifier,
     habitName: String,
     onHabitChange: (String) -> Unit,
-    category: String,
-    onCategoryValue: (String) -> Unit,
+    description: String,
+    onDescriptionChange: (String) -> Unit,
+    groupName: String,
+    onGroupValue: (String) -> Unit,
     frequency: String,
     onFrequencyValue: (String) -> Unit
 ){
@@ -112,19 +170,28 @@ private fun EditHabitInputs(
             inputHeight = 57.dp
         )
 
-        // Categoria del habito
+        // Descripcion del habito
+        CustomInput(
+            label = "Descripción",
+            value = description,
+            placeholder = "Ej. Tomar 2 litros de agua",
+            onValueChange = onDescriptionChange,
+            inputHeight = 57.dp
+        )
+
+        // Grupo del habito
         AppDropdownMenu(
-            label = stringResource(id = R.string.category_lbl),
-            value = category,
+            label = "Grupo",
+            value = groupName,
             options = listOf(
-                stringResource(id = R.string.health_category),
-                stringResource(id = R.string.study_category),
-                stringResource(id = R.string.exercise_category),
-                stringResource(id = R.string.wellness_category),
-                stringResource(id = R.string.productivity_category),
-                stringResource(id = R.string.personal_category)
+                "Escuela",
+                "Trabajo",
+                "Personal",
+                "Salud",
+                "Ejercicio",
+                "Productividad"
             ),
-            onValueChange = onCategoryValue
+            onValueChange = onGroupValue
         )
 
         // Frecuencia del habito

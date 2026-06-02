@@ -39,6 +39,7 @@ fun EditTaskScreen(navController: NavController, taskId: String){
     var taskName by remember { mutableStateOf("") }
     var priority by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
 
@@ -59,6 +60,7 @@ fun EditTaskScreen(navController: NavController, taskId: String){
                     if (task != null) {
                         taskName = task.content
                         priority = task.priority
+                        groupName = task.groupName
                         dueDate = task.dueDate
                     }
                     isLoading = false // Ocultar indicador de carga
@@ -72,10 +74,6 @@ fun EditTaskScreen(navController: NavController, taskId: String){
     }
 
     AppBackground()  {
-        if (isLoading) {
-            // Poner un indicador de carga aquí
-        }
-
         // Contenido de la pantalla de edición de tarea
         Column {
             EditTaskHeader(onBackClick = {navController.popBackStack()})
@@ -88,7 +86,9 @@ fun EditTaskScreen(navController: NavController, taskId: String){
                 priority = priority,
                 onPriorityChange = { priority = it },
                 dueDate = dueDate,
-                onDueDateChange = { dueDate = it }
+                onDueDateChange = { dueDate = it },
+                groupName = groupName,
+                onGroupChange = { groupName = it }
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -111,6 +111,7 @@ fun EditTaskScreen(navController: NavController, taskId: String){
                     val updates = mapOf( // Actualizar campos en Firestore
                         "content" to taskName,
                         "priority" to priority,
+                        "groupName" to groupName,
                         "dueDate" to dueDate
                     )
 
@@ -157,12 +158,15 @@ private fun EditTaskInputs(
     priority: String,
     onPriorityChange: (String) -> Unit,
     dueDate: String,
-    onDueDateChange: (String) -> Unit
+    onDueDateChange: (String) -> Unit,
+    groupName: String,
+    onGroupChange: (String) -> Unit
 ){
     Column (
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ){
+        // Campo de entrada para el nombre de la tarea
         CustomInput(
             label = stringResource(id = R.string.task_name_input_label),
             value = taskName,
@@ -172,6 +176,7 @@ private fun EditTaskInputs(
             inputHeight = 57.dp
         )
 
+        // Menú desplegable para la prioridad de la tarea
         AppDropdownMenu(
             label = stringResource(id = R.string.task_priority_dropdown_label),
             value = priority,
@@ -183,6 +188,22 @@ private fun EditTaskInputs(
             onValueChange = onPriorityChange
         )
 
+        // Menú desplegable para el grupo al que pertenece la tarea
+        AppDropdownMenu(
+            label = "Grupo",
+            value = groupName,
+            options = listOf(
+                "Escuela",
+                "Trabajo",
+                "Personal",
+                "Salud",
+                "Ejercicio",
+                "Productividad"
+            ),
+            onValueChange = onGroupChange
+        )
+
+        // Selector de fecha para la fecha límite de la tarea
         AppDatePicker(
             label = stringResource(id = R.string.task_due_date_label),
             value = dueDate,

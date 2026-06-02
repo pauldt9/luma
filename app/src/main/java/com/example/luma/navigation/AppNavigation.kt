@@ -87,8 +87,16 @@ fun AppNavigation(){
         composable ("add_habit"){
             AddHabitScreen(navController)
         }
-        composable ("edit_habit"){
-            EditHabitScreen(navController)
+        composable (
+            "edit_habit/{habitId}",
+            arguments = listOf(
+                navArgument("habitId") {
+                    type = NavType.StringType
+                }
+            )
+        ){ backStackEntry ->
+            val habitId = backStackEntry.arguments?.getString("habitId") ?: ""
+            EditHabitScreen(navController, habitId)
         }
         composable("ai"){
             AiScreen(navController)

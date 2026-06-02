@@ -6,6 +6,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 data class Task(
     val id: String = "", // ID único de la tarea
     val userId: String = "", // ID del usuario al que pertenece la tarea
+    val groupName: String = "", // Nombre del grupo al que pertenece la tarea
     val content: String = "", // Contenido de la tarea
     val priority: String = "Baja", // Puede ser "Alta", "Media" o "Baja"
     val dueDate: String = "", // Fecha límite
