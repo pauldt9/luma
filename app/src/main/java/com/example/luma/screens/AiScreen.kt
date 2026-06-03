@@ -102,7 +102,8 @@ fun AiScreen(navController: NavController) {
             }
         }
     }) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+
+        Column(modifier = Modifier.fillMaxSize()) {
             ScreenTitle(stringResource(R.string.ai_title))
             ScreenSubtitle(stringResource(R.string.ai_subtitle))
 
@@ -165,69 +166,66 @@ fun AiScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(65.dp))
+            Spacer(modifier = Modifier.height(45.dp))
 
-            // Mensajes
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    stringResource(R.string.ai_prompt_label),
-                    color = colorResource(R.color.text_color),
-                    fontSize = 24.sp
-                )
+            Text(
+                stringResource(R.string.ai_prompt_label),
+                color = colorResource(R.color.text_color),
+                fontSize = 24.sp
+            )
 
-                Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-                AppCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(370.dp),
-                    containerColor = colorResource(R.color.textfield_bg_col),
-                    containerBorder = colorResource(R.color.textfield_border_col)
+            AppCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                containerColor = colorResource(R.color.textfield_bg_col),
+                containerBorder = colorResource(R.color.textfield_border_col)
+            ) {
+                // Lista de mensajes
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(8.dp)
                 ) {
-                    // Lista de mensajes
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        state = lazyListState,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(8.dp)
-                    ) {
-                        items(messages) { MessageBubble(it) }
+                    items(messages) { MessageBubble(it) }
+                }
+            }
+
+            CustomInput(
+                label = "",
+                value = userPrompt,
+                placeholder = stringResource(R.string.prompt_placeholder),
+                onValueChange = { userPrompt = it },
+                inputHeight = 60.dp,
+                trailingContent = {
+                    // Botón de envío
+                    IconButton(onClick = {
+                        // Si el campo de entrada está vacío, no hace nada
+                        if (userPrompt.isBlank()) return@IconButton
+
+                        // Si el usuario no está autenticado, no hace nada
+                        val userId = currentUser?.uid ?: return@IconButton
+
+                        // Pregunta del usuario
+                        val question = userPrompt
+
+                        // Limpia el campo de entrada
+                        userPrompt = ""
+
+                        // Envia la pregunta al ViewModel
+                        aiViewModel.sendMessage(userId, question)
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Enviar",
+                            tint = colorResource(R.color.text_color)
+                        )
                     }
                 }
-
-                CustomInput(
-                    label = "",
-                    value = userPrompt,
-                    placeholder = stringResource(R.string.prompt_placeholder),
-                    onValueChange = { userPrompt = it },
-                    inputHeight = 60.dp,
-                    trailingContent = {
-                        // Botón de envío
-                        IconButton(onClick = {
-                            // Si el campo de entrada está vacío, no hace nada
-                            if (userPrompt.isBlank()) return@IconButton
-
-                            // Si el usuario no está autenticado, no hace nada
-                            val userId = currentUser?.uid ?: return@IconButton
-
-                            // Pregunta del usuario
-                            val question = userPrompt
-
-                            // Limpia el campo de entrada
-                            userPrompt = ""
-
-                            // Envia la pregunta al ViewModel
-                            aiViewModel.sendMessage(userId, question)
-                        }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Send,
-                                contentDescription = "Enviar",
-                                tint = colorResource(R.color.text_color)
-                            )
-                        }
-                    }
-                )
-            }
+            )
         }
     }
 }
