@@ -32,6 +32,7 @@ import com.example.luma.components.AppDropdownMenu
 import com.example.luma.components.CustomButton
 import com.example.luma.model.Group
 import com.example.luma.model.Task
+import com.example.luma.model.TaskLog
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
@@ -119,6 +120,17 @@ fun AddTaskScreen(navController: NavController){
                         // Guarda la tarea en Firestore
                         newTaskRef.set(task)
                             .addOnSuccessListener {
+                                // Guarda el registro de la tarea en Firestore
+                                saveTaskLog(
+                                    userId = userId,
+                                    taskId = newTaskRef.id,
+                                    groupName = groupName,
+                                    content = taskName,
+                                    action = "creado",
+                                    completed = false,
+                                    priority = priority,
+                                    dueDate = dueDate
+                                )
                                 isLoading = false
                                 Toast.makeText(context, "Tarea añadida", Toast.LENGTH_SHORT).show()
                                 navController.popBackStack()
@@ -216,4 +228,35 @@ private fun AddTaskInputs(
             onValueChange = onDueDateChange
         )
     }
+}
+
+// Guarda el registro de la tarea en Firestore
+private fun saveTaskLog(
+    userId: String,
+    taskId: String,
+    groupName: String,
+    content: String,
+    action: String,
+    completed: Boolean,
+    priority: String,
+    dueDate: String
+) {
+    val db = Firebase.firestore
+    val logRef = db.collection("tasks_log").document()
+
+    // Crea un objeto TaskLog con los datos de la tarea
+    val log = TaskLog(
+        id = logRef.id,
+        userId = userId,
+        taskId = taskId,
+        groupName = groupName,
+        content = content,
+        action = action,
+        completed = completed,
+        priority = priority,
+        dueDate = dueDate
+    )
+
+    // Guarda el objeto TaskLog en Firestore
+    logRef.set(log)
 }

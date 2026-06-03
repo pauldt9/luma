@@ -122,6 +122,7 @@ fun AddHabitScreen(navController: NavController){
     }
 }
 
+// Crea el header de la pantalla de agregar habito
 @Composable
 private fun AddHabitHeader(
     onBackClick: () -> Unit
@@ -139,6 +140,7 @@ private fun AddHabitHeader(
     }
 }
 
+// Crea los inputs para agregar un habito
 @Composable
 private fun AddHabitInputs(
     modifier: Modifier = Modifier,

@@ -106,7 +106,7 @@ private fun BarContainer(
     }
 }
 
-// Funcion que crea los botones de la barra de navegacion
+// Función que crea los botones de la barra de navegacion
 @Composable
 private fun BarItem(
     label: String,

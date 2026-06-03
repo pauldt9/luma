@@ -26,9 +26,6 @@ import com.google.firebase.Firebase
 fun AppNavigation(){
     // Controlador de navegación
     val navController = rememberNavController()
-    
-    // LÍNEA PARA FORZAR CIERRE DE SESIÓN (Eliminar después de integrar manejo de perfil)
-    // Firebase.auth.signOut()
 
     // Obtiene al usuario autenticado actualmente
     val currentUser = Firebase.auth.currentUser
@@ -87,6 +84,7 @@ fun AppNavigation(){
         composable ("add_habit"){
             AddHabitScreen(navController)
         }
+        // Ruta para editar habito pasando el ID como parámetro
         composable (
             "edit_habit/{habitId}",
             arguments = listOf(

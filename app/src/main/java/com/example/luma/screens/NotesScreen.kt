@@ -41,6 +41,7 @@ import com.example.luma.components.MainScaffold
 import com.example.luma.components.ScreenSubtitle
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.Note
+import com.example.luma.model.NoteLog
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -110,7 +111,18 @@ fun NotesScreen(navController: NavController) {
                 navController.navigate("note_detail/${note.id}")
             },
             onDeleteClick = { note ->
-                db.collection("notes").document(note.id).delete()
+                db.collection("notes")
+                    .document(note.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        saveNoteLog(
+                            userId = note.userId,
+                            noteId = note.id,
+                            title = note.title,
+                            content = note.content,
+                            action = "eliminada"
+                        )
+                    }
             }
         )
     }
@@ -229,4 +241,27 @@ private fun NoteContainer(
             }
         }
     }
+}
+
+// Guarda el registro de la nota en Firestore
+private fun saveNoteLog(
+    userId: String,
+    noteId: String,
+    title: String,
+    content: String,
+    action: String
+) {
+    val db = Firebase.firestore
+    val logRef = db.collection("notes_log").document()
+
+    val log = NoteLog(
+        id = logRef.id,
+        userId = userId,
+        noteId = noteId,
+        title = title,
+        content = content,
+        action = action
+    )
+
+    logRef.set(log)
 }

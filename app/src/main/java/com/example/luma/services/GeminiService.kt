@@ -15,6 +15,7 @@ object GeminiService {
         Firebase.ai(backend = GenerativeBackend.googleAI())
             .generativeModel("gemini-3.1-flash-lite")
 
+    // Función para interactuar con Gemini
     suspend fun chatWithTasks(userQuestion: String, tasks: List<Task>): String {
 
         // Obtenemos la fecha actual
@@ -23,7 +24,8 @@ object GeminiService {
         // Filtramos tareas pendientes
         val pendingTasks = tasks.filter { !it.completed }
 
-        val taskText = if (pendingTasks.isEmpty()) {
+        // Construimos el texto de las tareas
+        val taskText = if (pendingTasks.isEmpty()) { // Si no hay tareas pendientes, agregamos eso al mensaje
             "No hay tareas pendientes."
         } else {
             pendingTasks.joinToString("\n") { task ->
@@ -35,12 +37,15 @@ object GeminiService {
                     false
                 }
 
+                // Verificamos si la tarea está atrasada
                 val overdueText = if (isOverdue) "Está atrasada" else "No está atrasada"
 
+                // Construimos el texto de la tarea
                 "- ${task.content} (Prioridad: ${task.priority}, Vence: ${task.dueDate}, Está atrasada: $overdueText, Grupo al que pertenece: ${task.groupName})"
             }
         }
 
+        // Construimos el prompt para la API
         val prompt = """
             Eres Luma, un asistente de productividad inteligente.
 

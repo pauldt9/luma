@@ -70,20 +70,24 @@ fun HomeScreen(navController: NavController){
     // El estado empieza en null para indicar "cargando"
     var userName by remember { mutableStateOf<String?>(null) }
 
-    // Estados de las metricas
-    val totalTasks = 5
-    val pendingTasks = 3
-    val completedTasks = 2
-    val taskPercentage = 40
+    // Estados de las metricas de tareas
+    var totalTasks by remember { mutableStateOf(0) }
+    var pendingTasks by remember { mutableStateOf(0) }
+    var completedTasks by remember { mutableStateOf(0) }
+    var taskPercentage by remember { mutableStateOf(0) }
 
-    val totalNotes = 3
-    val lastNoteUpdate = 2
+    // Estados de las metricas de notas
+    var totalNotes by remember { mutableStateOf(0) }
+    var lastNoteUpdate by remember { mutableStateOf("Sin notas") }
 
-    val currentStreak = 3
-    val completedHabits = 2
-    val totalHabits = 3
-    val habitProgress = completedHabits.toFloat() / totalHabits
-    val lastAiQuery = "hoy"
+    // Estados de las metricas de habitos
+    var currentStreak by remember { mutableStateOf(0) }
+    var completedHabits by remember { mutableStateOf(0) }
+    var totalHabits by remember { mutableStateOf(0) }
+    var habitProgress by remember { mutableStateOf(0f) }
+
+    // Estado de la ultima consulta de IA
+    var lastAiQuery by remember { mutableStateOf("sin consultas") }
 
     // Obtener el nombre del usuario desde Firestore
     LaunchedEffect(currentUser) {
@@ -94,6 +98,99 @@ fun HomeScreen(navController: NavController){
                 }
                 .addOnFailureListener { userName = "Usuario" }
         } ?: run { userName = "Invitado" }
+    }
+
+    // Obtener las metricas de tareas, notas y habitos desde Firestore
+    LaunchedEffect(currentUser) {
+        val userId = currentUser?.uid ?: return@LaunchedEffect
+
+        // Obtiene las metricas de tareas
+        db.collection("tasks")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, _ ->
+                val tasks = snapshot?.documents ?: emptyList() // Lista de tareas
+
+                totalTasks = tasks.size // Total de tareas
+                completedTasks = tasks.count {
+                    it.getBoolean("completed") == true // Tareas completadas
+                }
+                pendingTasks = totalTasks - completedTasks
+
+                // Porcentaje de tareas completadas
+                taskPercentage = if (totalTasks > 0) {
+                    ((completedTasks.toFloat() / totalTasks.toFloat()) * 100).toInt()
+                } else {
+                    0
+                }
+            }
+
+        // Obtiene las metricas de notas
+        db.collection("notes")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, _ ->
+
+                // Lista de notas
+                val notes = snapshot?.documents ?: emptyList()
+
+                // Total de notas
+                totalNotes = notes.size
+
+                // Fecha de la ultima nota
+                val latestTimestamp = notes.maxOfOrNull {
+                    it.getLong("timestamp") ?: 0L
+                }
+
+                // Formatear la fecha
+                if (latestTimestamp != null && latestTimestamp > 0) {
+
+                    val formatter = SimpleDateFormat(
+                        "dd/MM/yyyy",
+                        Locale.getDefault()
+                    )
+
+                    // Actualizar el estado con la fecha formateada
+                    lastNoteUpdate =
+                        formatter.format(Date(latestTimestamp))
+
+                } else {
+                    lastNoteUpdate = "Sin notas"
+                }
+            }
+
+        // Obtiene las metricas de habitos
+        db.collection("habits")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, _ ->
+                val habits = snapshot?.documents ?: emptyList()
+
+                totalHabits = habits.size
+                completedHabits = habits.count {
+                    it.getBoolean("completedToday") == true
+                }
+
+                currentStreak = habits.maxOfOrNull {
+                    it.getLong("currentStreak")?.toInt() ?: 0
+                } ?: 0
+
+                habitProgress = if (totalHabits > 0) {
+                    completedHabits.toFloat() / totalHabits.toFloat()
+                } else {
+                    0f
+                }
+            }
+
+        // Obtiene las metricas de consultas de IA
+        db.collection("ai_chats")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, _ ->
+                val chats = snapshot?.documents ?: emptyList()
+
+                lastAiQuery = if (chats.isNotEmpty()) {
+                    "hoy"
+                } else {
+                    "sin consultas"
+                }
+            }
     }
 
     fun navigateToMainRoute(route: String) {
@@ -227,7 +324,7 @@ private fun HomeBody(
     completedTasks: Int,
     taskPercentage: Int,
     totalNotes: Int,
-    lastNoteUpdate: Int,
+    lastNoteUpdate: String,
     currentStreak: Int,
     completedHabits: Int,
     totalHabits: Int,
@@ -237,7 +334,6 @@ private fun HomeBody(
     onHabitsClick: () -> Unit,
     onAiClick: () -> Unit
 ){
-    // TODO: Mostrar la cantidad de tareas, notas y habitos creados.
     Column(
         verticalArrangement = Arrangement.spacedBy(21.dp)
     ) {
@@ -274,7 +370,7 @@ private fun HomeBody(
             ) {
                 CardTitle(stringResource(id = R.string.notes_title))
                 MetricValue(totalNotes.toString())
-                Spacer(modifier = Modifier.height(31.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 // Ultima edicion de notas (ultima creada o editada)
                 CardText(stringResource(id = R.string.last_update_notes, lastNoteUpdate))
             }

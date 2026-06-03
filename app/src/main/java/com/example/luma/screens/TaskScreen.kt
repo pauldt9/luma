@@ -47,6 +47,7 @@ import com.example.luma.components.MainScaffold
 import com.example.luma.components.ScreenSubtitle
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.Task
+import com.example.luma.model.TaskLog
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
@@ -59,7 +60,6 @@ fun TaskScreen(navController: NavController){
     val db = Firebase.firestore // Instancia de Firestore de Firebase
     val auth = Firebase.auth // Instancia de autenticación de Firebase
     val currentUser = auth.currentUser // Obtiene el usuario actual
-    val context = LocalContext.current // Contexto de la aplicación, para mostrar mensajes
 
     // Lista de tareas
     val tasks = remember { mutableStateListOf<Task>() }
@@ -112,13 +112,41 @@ fun TaskScreen(navController: NavController){
                 // Pasamos el ID de la tarea a la ruta de edición
                 navController.navigate("edit_task/${task.id}")
             },
+            // Eliminar tarea
             onDeleteClick = { task ->
-                // Borramos la tarea
-                db.collection("tasks").document(task.id).delete()
+                db.collection("tasks")
+                    .document(task.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        saveTaskLog(
+                            userId = task.userId,
+                            taskId = task.id,
+                            groupName = task.groupName,
+                            content = task.content,
+                            action = "eliminado",
+                            completed = task.completed,
+                            priority = task.priority,
+                            dueDate = task.dueDate
+                        )
+                    }
             },
+            // Marcar tarea como completada
             onCheckedChange = { task, checked ->
-                // Actualizamos el estado de la tarea
-                db.collection("tasks").document(task.id).update("completed", checked) 
+                db.collection("tasks")
+                    .document(task.id)
+                    .update("completed", checked)
+                    .addOnSuccessListener {
+                        saveTaskLog(
+                            userId = task.userId,
+                            taskId = task.id,
+                            groupName = task.groupName,
+                            content = task.content,
+                            action = if (checked) "completado" else "desmarcado",
+                            completed = checked,
+                            priority = task.priority,
+                            dueDate = task.dueDate
+                        )
+                    }
             }
         )
     }
@@ -321,4 +349,35 @@ private fun isDateBeforeToday(dateString: String): Boolean {
     } catch (e: Exception) {
         false
     }
+}
+
+// Guarda el registro de la tarea en Firestore
+private fun saveTaskLog(
+    userId: String,
+    taskId: String,
+    groupName: String,
+    content: String,
+    action: String,
+    completed: Boolean,
+    priority: String,
+    dueDate: String
+) {
+    val db = Firebase.firestore
+    val logRef = db.collection("tasks_log").document()
+
+    // Crea un objeto TaskLog con los datos de la tarea
+    val log = TaskLog(
+        id = logRef.id,
+        userId = userId,
+        taskId = taskId,
+        groupName = groupName,
+        content = content,
+        action = action,
+        completed = completed,
+        priority = priority,
+        dueDate = dueDate
+    )
+
+    //Guarda el registro de la tarea en Firestore
+    logRef.set(log)
 }

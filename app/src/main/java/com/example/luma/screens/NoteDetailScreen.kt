@@ -28,6 +28,7 @@ import com.example.luma.R
 import com.example.luma.components.AppBackground
 import com.example.luma.components.BackButton
 import com.example.luma.model.Note
+import com.example.luma.model.NoteLog
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -157,6 +158,13 @@ private fun saveNote(
         // Guardar la nota en Firestore
         noteRef.set(note)
             .addOnSuccessListener {
+                saveNoteLog(
+                    userId = userId,
+                    noteId = noteRef.id,
+                    title = title,
+                    content = content,
+                    action = "creada"
+                )
                 onSuccess() // Si se guarda correctamente, llamamos a onSuccess
             }
             .addOnFailureListener { error ->
@@ -174,6 +182,14 @@ private fun saveNote(
                 )
             )
             .addOnSuccessListener {
+                saveNoteLog(
+                    userId = userId,
+                    noteId = noteId,
+                    title = title,
+                    content = content,
+                    action = "actualizada"
+                )
+
                 onSuccess()
             }
             .addOnFailureListener { error ->
@@ -213,4 +229,27 @@ private fun NoteTextField(
             modifier = Modifier.fillMaxWidth()
         )
     }
+}
+
+// Guarda el registro de la nota en Firestore
+private fun saveNoteLog(
+    userId: String,
+    noteId: String,
+    title: String,
+    content: String,
+    action: String
+) {
+    val db = Firebase.firestore
+    val logRef = db.collection("notes_log").document()
+
+    val log = NoteLog(
+        id = logRef.id,
+        userId = userId,
+        noteId = noteId,
+        title = title,
+        content = content,
+        action = action
+    )
+
+    logRef.set(log)
 }

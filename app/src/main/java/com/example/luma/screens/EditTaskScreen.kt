@@ -30,6 +30,7 @@ import com.example.luma.components.CustomButton
 import com.example.luma.components.CustomInput
 import com.example.luma.components.ScreenTitle
 import com.example.luma.model.Task
+import com.example.luma.model.TaskLog
 import com.google.firebase.firestore.firestore
 import com.google.firebase.Firebase
 
@@ -40,7 +41,6 @@ fun EditTaskScreen(navController: NavController, taskId: String){
     var priority by remember { mutableStateOf("") }
     var dueDate by remember { mutableStateOf("") }
     var groupName by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
     var isSaving by remember { mutableStateOf(false) }
 
     // Contexto para mostrar mensajes
@@ -48,26 +48,29 @@ fun EditTaskScreen(navController: NavController, taskId: String){
     // Instancia de Firestore
     val db = Firebase.firestore
 
+    // Estado para el ID del usuario y el estado de completado para el log
+    var userId by remember { mutableStateOf("") }
+    var completed by remember { mutableStateOf(false) }
+
     // Cargar datos actuales de la tarea
     LaunchedEffect(taskId) {
         if (taskId.isNotEmpty()) {
-            isLoading = true // Mostrar indicador de carga
             // Obtener datos de la tarea
             db.collection("tasks").document(taskId).get()
                 .addOnSuccessListener { document ->
                     val task = document.toObject(Task::class.java) // Convertir a objeto Task
                     // Actualizar los campos de entrada
                     if (task != null) {
+                        userId = task.userId
+                        completed = task.completed
                         taskName = task.content
                         priority = task.priority
                         groupName = task.groupName
                         dueDate = task.dueDate
                     }
-                    isLoading = false // Ocultar indicador de carga
                 }
                 // Manejo de errores
                 .addOnFailureListener {
-                    isLoading = false
                     Toast.makeText(context, "Error al cargar la tarea", Toast.LENGTH_SHORT).show()
                 }
         }
@@ -118,6 +121,16 @@ fun EditTaskScreen(navController: NavController, taskId: String){
                     // Actualizar la tarea en Firestore
                     db.collection("tasks").document(taskId).update(updates)
                         .addOnSuccessListener {
+                            saveTaskLog(
+                                userId = userId,
+                                taskId = taskId,
+                                groupName = groupName,
+                                content = taskName,
+                                action = "actualizado",
+                                completed = completed,
+                                priority = priority,
+                                dueDate = dueDate
+                            )
                             isSaving = false
                             Toast.makeText(context, "Tarea actualizada", Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
@@ -210,4 +223,33 @@ private fun EditTaskInputs(
             onValueChange = onDueDateChange
         )
     }
+}
+
+// Guarda el registro de la tarea en Firestore
+private fun saveTaskLog(
+    userId: String,
+    taskId: String,
+    groupName: String,
+    content: String,
+    action: String,
+    completed: Boolean,
+    priority: String,
+    dueDate: String
+) {
+    val db = Firebase.firestore
+    val logRef = db.collection("tasks_log").document()
+
+    val log = TaskLog(
+        id = logRef.id,
+        userId = userId,
+        taskId = taskId,
+        groupName = groupName,
+        content = content,
+        action = action,
+        completed = completed,
+        priority = priority,
+        dueDate = dueDate
+    )
+
+    logRef.set(log)
 }
