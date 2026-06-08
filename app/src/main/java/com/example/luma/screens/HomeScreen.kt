@@ -6,14 +6,18 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,9 +41,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +55,7 @@ import com.example.luma.R
 import com.example.luma.components.AppCard
 import com.example.luma.components.CardText
 import com.example.luma.components.CardTitle
+import com.example.luma.components.CircularMetricChart
 import com.example.luma.components.MainScaffold
 import com.example.luma.components.MetricValue
 import com.example.luma.components.ProgressBar
@@ -342,67 +349,134 @@ private fun HomeBody(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Tareas
-            AppCard(
-                modifier = Modifier.weight(1f).height(155.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp),
-                onClick = onTaskClick
+            AnimatedHomeCard(
+                index = 0,
+                modifier = Modifier.weight(1f)
             ) {
-                CardTitle(stringResource(id = R.string.task_title))
-                MetricValue(totalTasks.toString())
-                Spacer(modifier = Modifier.height(10.dp))
-                // Tareas pendendites
-                CardText(
-                    text = stringResource(id = R.string.pending_tasks_home_screen, pendingTasks),
-                    fontSize = 15.sp
-                )
-                // Tareas completadas y porcentake
-                CardText(
-                    text = stringResource(id = R.string.completed_tasks_home_screen, completedTasks, taskPercentage),
-                    fontSize = 15.sp
-                )
+                AppCard(
+                    modifier = Modifier.weight(1f).height(155.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                    accentColor = colorResource(id = R.color.task_accent),
+                    onClick = onTaskClick
+                ) {
+                    CardTitle(stringResource(id = R.string.task_title))
+                    MetricValue(totalTasks.toString())
+                    Spacer(modifier = Modifier.height(10.dp))
+                    // Tareas pendientes
+                    CardText(
+                        text = stringResource(
+                            id = R.string.pending_tasks_home_screen,
+                            pendingTasks
+                        ),
+                        fontSize = 15.sp
+                    )
+                    // Tareas completadas y porcentaje
+                    CardText(
+                        text = stringResource(
+                            id = R.string.completed_tasks_home_screen,
+                            completedTasks,
+                            taskPercentage
+                        ),
+                        fontSize = 15.sp
+                    )
+                }
             }
 
             // Notas
-            AppCard(
-                modifier = Modifier.weight(1f).height(155.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp),
-                onClick = onNotesClick
+            AnimatedHomeCard(
+                index = 1,
+                modifier = Modifier.weight(1f)
             ) {
-                CardTitle(stringResource(id = R.string.notes_title))
-                MetricValue(totalNotes.toString())
-                Spacer(modifier = Modifier.height(15.dp))
-                // Ultima edicion de notas (ultima creada o editada)
-                CardText(stringResource(id = R.string.last_update_notes, lastNoteUpdate))
+                AppCard(
+                    modifier = Modifier.weight(1f).height(155.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                    accentColor = colorResource(id = R.color.notes_accent),
+                    onClick = onNotesClick
+                ) {
+                    CardTitle(stringResource(id = R.string.notes_title))
+                    MetricValue(totalNotes.toString())
+                    Spacer(modifier = Modifier.height(15.dp))
+                    // Ultima edicion de notas (ultima creada o editada)
+                    CardText(stringResource(id = R.string.last_update_notes, lastNoteUpdate))
+                }
+            }
+        }
+
+        // Gráfica de tareas
+        AnimatedHomeCard(index = 2) {
+            AppCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                accentColor = colorResource(id = R.color.productivity_accent),
+                onClick = onTaskClick
+            ) {
+                CardTitle("Productividad")
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularMetricChart(
+                        percentage = taskPercentage,
+                        progressColor = colorResource(id = R.color.productivity_accent),
+                        modifier = Modifier.size(105.dp)
+                    )
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        CardText("Tareas completadas")
+                        MetricValue("$taskPercentage%")
+
+                        CardText("$completedTasks hechas de $totalTasks")
+                        CardText("$pendingTasks pendientes")
+                    }
+                }
             }
         }
 
         // Habitos
-        AppCard(
-            modifier = Modifier.fillMaxWidth().height(145.dp),
-            verticalArrangement = Arrangement.spacedBy(3.dp),
-            onClick = onHabitsClick
-        ) {
-            CardTitle(stringResource(id = R.string.habits_title))
-            // Racha del usuario
-            CardText(stringResource(id = R.string.habits_streak, currentStreak))
-            Spacer(modifier = Modifier.height(15.dp))
-            CardText(stringResource(id = R.string.habits_subtitle))
-            // Barra de progreso
-            ProgressBar(habitProgress)
-            // Habitos completados
-            CardText(stringResource(id = R.string.habits_completed, completedHabits, totalHabits))
+        AnimatedHomeCard(index = 3) {
+            AppCard(
+                modifier = Modifier.fillMaxWidth().height(145.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+                accentColor = colorResource(id = R.color.habits_accent),
+                onClick = onHabitsClick
+            ) {
+                CardTitle(stringResource(id = R.string.habits_title))
+                // Racha del usuario
+                CardText(stringResource(id = R.string.habits_streak, currentStreak))
+                Spacer(modifier = Modifier.height(15.dp))
+                CardText(stringResource(id = R.string.habits_subtitle))
+                // Barra de progreso
+                ProgressBar(habitProgress)
+                // Habitos completados
+                CardText(
+                    stringResource(
+                        id = R.string.habits_completed,
+                        completedHabits,
+                        totalHabits
+                    )
+                )
+            }
         }
 
         // IA
-        AppCard(
-            modifier = Modifier.fillMaxWidth().height(140.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            onClick = onAiClick
-        ) {
-            CardTitle(stringResource(id = R.string.ai_title))
-            CardText(stringResource(id = R.string.ai_subtitle))
-            Spacer(modifier = Modifier.height(19.dp))
-            CardText(stringResource(id = R.string.ai_last_query, lastAiQuery))
+        AnimatedHomeCard(index = 4) {
+            AppCard(
+                modifier = Modifier.fillMaxWidth().height(140.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+                accentColor = colorResource(id = R.color.ai_accent),
+                onClick = onAiClick
+            ) {
+                CardTitle(stringResource(id = R.string.ai_title))
+                CardText(stringResource(id = R.string.ai_subtitle))
+                Spacer(modifier = Modifier.height(19.dp))
+                CardText(stringResource(id = R.string.ai_last_query, lastAiQuery))
+            }
         }
     }
 }
@@ -417,6 +491,11 @@ private fun UserIcon(onClick: () -> Unit) {
                 color = colorResource(id = R.color.btn_action_background),
                 shape = CircleShape
             )
+            .border(
+                width = 1.dp,
+                color = colorResource(id = R.color.container_border),
+                shape = CircleShape
+            )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -426,5 +505,49 @@ private fun UserIcon(onClick: () -> Unit) {
             tint = colorResource(id = R.color.btn_action_text),
             modifier = Modifier.size(30.dp)
         )
+    }
+}
+
+// Animacion de carga
+@Composable
+private fun AnimatedHomeCard(
+    index: Int, // Indice de la tarjeta
+    modifier: Modifier = Modifier, // Modificador para la tarjeta
+    content: @Composable () -> Unit // Contenido de la tarjeta
+) {
+    var visible by remember { mutableStateOf(false) } // Estado de visibilidad de la tarjeta
+
+    // Efecto de aparición
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(index * 120L)
+        visible = true
+    }
+
+    // Animacion de aparición
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = 500),
+        label = "cardAlpha"
+    )
+
+    // Animacion de desplazamiento
+    val offsetY by animateFloatAsState(
+        targetValue = if (visible) 0f else 60f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "cardOffset"
+    )
+
+    // Contenido animado
+    Box(
+        modifier = modifier
+            .alpha(alpha)
+            .graphicsLayer {
+                translationY = offsetY
+            }
+    ) {
+        content()
     }
 }

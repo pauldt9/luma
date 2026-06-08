@@ -1,12 +1,17 @@
 package com.example.luma.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,23 +32,23 @@ fun AppCard(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     containerColor: Color = colorResource(id = R.color.container_bg),
     containerBorder: Color = colorResource(id = R.color.container_border),
+    accentColor: Color? = null,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    // Si requiere onClick, entonces
-    if (onClick != null) {
-        Card(
-            modifier = modifier,
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = containerBorder
-            ),
-            onClick = onClick
+    val cardContent: @Composable () -> Unit = {
+        Row(
+            modifier = Modifier.fillMaxWidth()
         ) {
+            accentColor?.let { color ->
+                Box(
+                    modifier = Modifier
+                        .width(5.dp)
+                        .fillMaxHeight()
+                        .background(color)
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,25 +58,26 @@ fun AppCard(
                 content = content
             )
         }
-    } else { // De no ocupar onClick
+    }
+
+    if (onClick != null) {
         Card(
             modifier = modifier,
             shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = containerColor
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = containerBorder
-            )
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(1.dp, containerBorder),
+            onClick = onClick
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(contentPadding),
-                horizontalAlignment = horizontalAlignment,
-                content = content
-            )
+            cardContent()
+        }
+    } else {
+        Card(
+            modifier = modifier,
+            shape = RoundedCornerShape(10.dp),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(1.dp, containerBorder)
+        ) {
+            cardContent()
         }
     }
 }

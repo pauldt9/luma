@@ -3,14 +3,14 @@
     <!-- Colores principales -->
     <color name="bg_color">#181818</color>
     <color name="container_bg">#202020</color>
-    <color name="container_border">#2C2C2C</color>
+    <color name="container_border">#79A5B3</color>
     <color name="white">#FFFFFF</color>
     <color name="text_color">#DFDFDF</color>
     <color name="subtitle_color">#767676</color>
 
     <!-- Textfield -->
     <color name="textfield_bg_col">#151515</color>
-    <color name="textfield_border_col">#252525</color>
+    <color name="textfield_border_col">#79A5B3</color>
     <color name="placeholder_col">#484848</color>
 
     <!-- Botones -->
@@ -28,7 +28,7 @@
 
     <!-- Barra de navegacion -->
     <color name="bar_bg">#1E1E1E</color>
-    <color name="bar_border">#2E2E2E</color>
+    <color name="bar_border">#79A5B3</color>
     <color name="selected_item">#D7D7D7</color>
     <color name="unselected_item">#8A8A8A</color>
     <color name="selected_item_circle">#2A2A2A</color>
@@ -61,4 +61,10 @@
     <color name="category_chip_col">#2C2C2C</color>
     <color name="category_chip_text">#999999</color>
 
+    <!-- Dashboard -->
+    <color name="task_accent">#4F8CFF</color>
+    <color name="notes_accent">#B56CFF</color>
+    <color name="productivity_accent">#FFB84D</color>
+    <color name="habits_accent">#42C97A</color>
+    <color name="ai_accent">#5DD4FF</color>
 </resources>

@@ -66,7 +66,7 @@
     <string name="task_name_input_label">Nombre de la tarea</string>
     <string name="task_name_input_placeholder">Insertar tarea…</string>
     <string name="task_priority_dropdown_label">Prioridad</string>
-    <string name="task_due_date_label">Fecha limite</string>
+    <string name="task_due_date_label">Fecha límite</string>
     <string name="add_task_btn">Agregar</string>
 
     <string name="edit_task_title">Editar tarea</string>
