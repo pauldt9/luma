@@ -45,6 +45,11 @@ import com.example.luma.model.NoteLog
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.padding
 
 @Composable
 fun NotesScreen(navController: NavController) {
@@ -168,13 +173,14 @@ private fun NoteContainer(
     ItemCard(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp),
+            .height(105.dp),
         onClick = { onClick(note) },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             CardTitle(
                 text = note.title,
@@ -182,11 +188,20 @@ private fun NoteContainer(
                 overflow = TextOverflow.Ellipsis
             )
 
-            CardText(
-                text = note.content,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CardText(
+                    text = note.content,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                NoteGroupChip(
+                    groupName = note.groupName.ifBlank { "General" }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(15.dp))
@@ -264,4 +279,22 @@ private fun saveNoteLog(
     )
 
     logRef.set(log)
+}
+
+@Composable
+private fun NoteGroupChip(groupName: String) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(colorResource(id = R.color.category_chip_col))
+            .padding(horizontal = 10.dp, vertical = 3.dp)
+    ) {
+        Text(
+            text = groupName,
+            color = colorResource(id = R.color.category_chip_text),
+            fontSize = 11.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }

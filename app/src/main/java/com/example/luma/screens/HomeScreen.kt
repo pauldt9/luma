@@ -22,12 +22,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +59,7 @@ import com.example.luma.components.AppCard
 import com.example.luma.components.CardText
 import com.example.luma.components.CardTitle
 import com.example.luma.components.CircularMetricChart
+import com.example.luma.components.HabitBarChart
 import com.example.luma.components.MainScaffold
 import com.example.luma.components.MetricValue
 import com.example.luma.components.ProgressBar
@@ -92,6 +96,7 @@ fun HomeScreen(navController: NavController){
     var completedHabits by remember { mutableStateOf(0) }
     var totalHabits by remember { mutableStateOf(0) }
     var habitProgress by remember { mutableStateOf(0f) }
+    var completedHabitsByGroup by remember { mutableStateOf<Map<String, Int>>(emptyMap())}
 
     // Estado de la ultima consulta de IA
     var lastAiQuery by remember { mutableStateOf("sin consultas") }
@@ -175,6 +180,13 @@ fun HomeScreen(navController: NavController){
                     it.getBoolean("completedToday") == true
                 }
 
+                completedHabitsByGroup= habits
+                    .filter { it.getBoolean("completedToday") == true }
+                    .groupBy {
+                    it.getString("groupName") ?: "Sin grupo"
+                    }
+                    .mapValues { it.value.size }
+
                 currentStreak = habits.maxOfOrNull {
                     it.getLong("currentStreak")?.toInt() ?: 0
                 } ?: 0
@@ -240,6 +252,7 @@ fun HomeScreen(navController: NavController){
             habitProgress = habitProgress, // Progreso de la barra de habitos
             completedHabits = completedHabits,
             totalHabits = totalHabits,
+            completedHabitsByGroup = completedHabitsByGroup,
 
             lastAiQuery = lastAiQuery,
 
@@ -335,149 +348,161 @@ private fun HomeBody(
     currentStreak: Int,
     completedHabits: Int,
     totalHabits: Int,
+    completedHabitsByGroup: Map<String, Int>,
     lastAiQuery: String,
     onTaskClick: () -> Unit,
     onNotesClick: () -> Unit,
     onHabitsClick: () -> Unit,
     onAiClick: () -> Unit
 ){
-    Column(
-        verticalArrangement = Arrangement.spacedBy(21.dp)
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(21.dp),
+        contentPadding = PaddingValues(bottom = 120.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Tareas
-            AnimatedHomeCard(
-                index = 0,
-                modifier = Modifier.weight(1f)
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                AppCard(
-                    modifier = Modifier.weight(1f).height(155.dp),
-                    verticalArrangement = Arrangement.spacedBy(3.dp),
-                    accentColor = colorResource(id = R.color.task_accent),
-                    onClick = onTaskClick
+                AnimatedHomeCard(
+                    index = 0,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    CardTitle(stringResource(id = R.string.task_title))
-                    MetricValue(totalTasks.toString())
-                    Spacer(modifier = Modifier.height(10.dp))
-                    // Tareas pendientes
-                    CardText(
-                        text = stringResource(
-                            id = R.string.pending_tasks_home_screen,
-                            pendingTasks
-                        ),
-                        fontSize = 15.sp
-                    )
-                    // Tareas completadas y porcentaje
-                    CardText(
-                        text = stringResource(
-                            id = R.string.completed_tasks_home_screen,
-                            completedTasks,
-                            taskPercentage
-                        ),
-                        fontSize = 15.sp
-                    )
+                    AppCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(155.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        accentColor = colorResource(id = R.color.task_accent),
+                        onClick = onTaskClick
+                    ) {
+                        CardTitle(stringResource(id = R.string.task_title))
+                        MetricValue(totalTasks.toString())
+                        Spacer(modifier = Modifier.height(10.dp))
+                        CardText(
+                            text = stringResource(id = R.string.pending_tasks_home_screen, pendingTasks),
+                            fontSize = 15.sp
+                        )
+                        CardText(
+                            text = stringResource(id = R.string.completed_tasks_home_screen, completedTasks, taskPercentage),
+                            fontSize = 15.sp
+                        )
+                    }
                 }
-            }
 
-            // Notas
-            AnimatedHomeCard(
-                index = 1,
-                modifier = Modifier.weight(1f)
-            ) {
-                AppCard(
-                    modifier = Modifier.weight(1f).height(155.dp),
-                    verticalArrangement = Arrangement.spacedBy(3.dp),
-                    accentColor = colorResource(id = R.color.notes_accent),
-                    onClick = onNotesClick
+                AnimatedHomeCard(
+                    index = 1,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    CardTitle(stringResource(id = R.string.notes_title))
-                    MetricValue(totalNotes.toString())
-                    Spacer(modifier = Modifier.height(15.dp))
-                    // Ultima edicion de notas (ultima creada o editada)
-                    CardText(stringResource(id = R.string.last_update_notes, lastNoteUpdate))
+                    AppCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(155.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        accentColor = colorResource(id = R.color.notes_accent),
+                        onClick = onNotesClick
+                    ) {
+                        CardTitle(stringResource(id = R.string.notes_title))
+                        MetricValue(totalNotes.toString())
+                        Spacer(modifier = Modifier.height(15.dp))
+                        CardText("Guardadas, ultima nota: $lastNoteUpdate")
+                    }
                 }
             }
         }
 
         // Gráfica de tareas
-        AnimatedHomeCard(index = 2) {
-            AppCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                accentColor = colorResource(id = R.color.productivity_accent),
-                onClick = onTaskClick
-            ) {
-                CardTitle("Productividad")
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+        item {
+            AnimatedHomeCard(index = 2) {
+                AppCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 140.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    accentColor = colorResource(id = R.color.productivity_accent),
+                    onClick = onTaskClick
                 ) {
-                    CircularMetricChart(
-                        percentage = taskPercentage,
-                        progressColor = colorResource(id = R.color.productivity_accent),
-                        modifier = Modifier.size(105.dp)
-                    )
+                    CardTitle("Productividad")
 
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CardText("Tareas completadas")
-                        MetricValue("$taskPercentage%")
+                        CircularMetricChart(
+                            percentage = taskPercentage,
+                            progressColor = colorResource(id = R.color.productivity_accent),
+                            modifier = Modifier.size(105.dp)
+                        )
 
-                        CardText("$completedTasks hechas de $totalTasks")
-                        CardText("$pendingTasks pendientes")
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            CardText("Tareas completadas")
+                            MetricValue("$taskPercentage%")
+
+                            CardText("$completedTasks hechas de $totalTasks")
+                            CardText("$pendingTasks pendientes")
+                        }
                     }
                 }
             }
         }
 
         // Habitos
-        AnimatedHomeCard(index = 3) {
-            AppCard(
-                modifier = Modifier.fillMaxWidth().height(145.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp),
-                accentColor = colorResource(id = R.color.habits_accent),
-                onClick = onHabitsClick
-            ) {
-                CardTitle(stringResource(id = R.string.habits_title))
-                // Racha del usuario
-                CardText(stringResource(id = R.string.habits_streak, currentStreak))
-                Spacer(modifier = Modifier.height(15.dp))
-                CardText(stringResource(id = R.string.habits_subtitle))
-                // Barra de progreso
-                ProgressBar(habitProgress)
-                // Habitos completados
-                CardText(
-                    stringResource(
-                        id = R.string.habits_completed,
-                        completedHabits,
-                        totalHabits
+        item {
+            AnimatedHomeCard(index = 3) {
+                AppCard(
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 140.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                    accentColor = colorResource(id = R.color.habits_accent),
+                    onClick = onHabitsClick
+                ) {
+                    CardTitle(stringResource(id = R.string.habits_title))
+                    // Racha del usuario
+                    CardText(stringResource(id = R.string.habits_streak, currentStreak))
+                    Spacer(modifier = Modifier.height(15.dp))
+                    CardText(stringResource(id = R.string.habits_subtitle))
+                    // Barra de progreso
+                    ProgressBar(habitProgress)
+                    // Habitos completados
+                    CardText(
+                        stringResource(
+                            id = R.string.habits_completed,
+                            completedHabits,
+                            totalHabits
+                        )
                     )
-                )
+                }
             }
         }
 
-        // IA
-        AnimatedHomeCard(index = 4) {
-            AppCard(
-                modifier = Modifier.fillMaxWidth().height(140.dp),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
-                accentColor = colorResource(id = R.color.ai_accent),
-                onClick = onAiClick
-            ) {
-                CardTitle(stringResource(id = R.string.ai_title))
-                CardText(stringResource(id = R.string.ai_subtitle))
-                Spacer(modifier = Modifier.height(19.dp))
-                CardText(stringResource(id = R.string.ai_last_query, lastAiQuery))
+        item {
+            AnimatedHomeCard(index = 4) {
+                AppCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 190.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    accentColor = colorResource(id = R.color.habits_accent),
+                    onClick = onHabitsClick
+                ) {
+                    CardTitle("Hábitos por grupo")
+
+                    if (completedHabitsByGroup.isEmpty()) {
+                        CardText("Aún no hay hábitos completados hoy")
+                    } else {
+                        HabitBarChart(
+                            data = completedHabitsByGroup,
+                            barColor = colorResource(id = R.color.habits_accent)
+                        )
+
+                        CardText("Completados hoy según su grupo")
+                    }
+                }
             }
         }
+
     }
 }
 

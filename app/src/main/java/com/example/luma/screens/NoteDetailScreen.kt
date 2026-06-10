@@ -35,7 +35,23 @@ import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 
+private val noteGroups = listOf(
+    "General",
+    "Escuela",
+    "Trabajo",
+    "Personal",
+    "Ideas"
+)
 @Composable
 fun NoteDetailScreen(
     navController: NavController,
@@ -50,6 +66,10 @@ fun NoteDetailScreen(
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
 
+    // Estado para el nombre del grupo
+    var groupName by remember { mutableStateOf("") }
+
+
     // Cargar los datos de la nota si se proporciona un ID
     LaunchedEffect(noteId) {
         if (!noteId.isNullOrEmpty()) {
@@ -63,6 +83,7 @@ fun NoteDetailScreen(
                     if (note != null) {
                         title = note.title
                         content = note.content
+                        groupName = note.groupName
                     }
                 }
         }
@@ -81,6 +102,7 @@ fun NoteDetailScreen(
                         noteId = noteId,
                         title = title,
                         content = content,
+                        groupName = groupName,
                         userId = currentUser?.uid ?: "",
                         onSuccess = {
                             navController.popBackStack()
@@ -106,6 +128,13 @@ fun NoteDetailScreen(
 
                 Spacer(modifier = Modifier.height(15.dp))
 
+                NoteGroupSelector(
+                    selectedGroup = groupName,
+                    onGroupSelected = { groupName = it }
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
                 NoteTextField(
                     value = content,
                     placeholder = stringResource(id = R.string.content_placeholder),
@@ -122,6 +151,7 @@ private fun saveNote(
     noteId: String?,
     title: String,
     content: String,
+    groupName: String,
     userId: String,
     onSuccess: () -> Unit,
     onError: (Exception) -> Unit
@@ -149,6 +179,7 @@ private fun saveNote(
         val note = Note(
             id = noteRef.id,
             userId = userId,
+            groupName = groupName.ifBlank { "Sin grupo" },
             title = title,
             content = content,
             date = date,
@@ -177,6 +208,7 @@ private fun saveNote(
                 mapOf(
                     "title" to title,
                     "content" to content,
+                    "groupName" to groupName,
                     "date" to date,
                     "timestamp" to System.currentTimeMillis()
                 )
@@ -252,4 +284,52 @@ private fun saveNoteLog(
     )
 
     logRef.set(log)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun NoteGroupSelector(
+    selectedGroup: String,
+    onGroupSelected: (String) -> Unit
+) {
+    Column {
+        Text(
+            text = "Grupo",
+            fontSize = 14.sp,
+            color = colorResource(id = R.color.subtitle_color)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            noteGroups.forEach { group ->
+                val isSelected = selectedGroup == group
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            if (isSelected)
+                                colorResource(id = R.color.notes_accent)
+                            else
+                                colorResource(id = R.color.category_chip_col)
+                        )
+                        .clickable { onGroupSelected(group) }
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = group,
+                        fontSize = 13.sp,
+                        color = if (isSelected)
+                            colorResource(id = R.color.btn_primary_text)
+                        else
+                            colorResource(id = R.color.category_chip_text)
+                    )
+                }
+            }
+        }
+    }
 }

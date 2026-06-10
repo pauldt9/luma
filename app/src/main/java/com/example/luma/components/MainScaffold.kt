@@ -52,8 +52,8 @@ fun MainScaffold(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 30.dp, vertical = 45.dp),
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 30.dp),
                 content = content
             )
         }
