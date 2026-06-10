@@ -38,12 +38,10 @@ import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 
 private val noteGroups = listOf(
     "General",
@@ -67,7 +65,7 @@ fun NoteDetailScreen(
     var content by remember { mutableStateOf("") }
 
     // Estado para el nombre del grupo
-    var groupName by remember { mutableStateOf("") }
+    var groupName by remember { mutableStateOf("General") }
 
 
     // Cargar los datos de la nota si se proporciona un ID
@@ -83,7 +81,7 @@ fun NoteDetailScreen(
                     if (note != null) {
                         title = note.title
                         content = note.content
-                        groupName = note.groupName
+                        groupName = note.groupName.ifBlank { "General" }
                     }
                 }
         }
@@ -175,11 +173,13 @@ private fun saveNote(
     if (noteId.isNullOrEmpty()) {
         val noteRef = db.collection("notes").document()
 
+        val finalGroupName = groupName.ifBlank { "General" }
+
         // Crear un objeto Note con los datos
         val note = Note(
             id = noteRef.id,
             userId = userId,
-            groupName = groupName.ifBlank { "Sin grupo" },
+            groupName = finalGroupName,
             title = title,
             content = content,
             date = date,
@@ -192,8 +192,9 @@ private fun saveNote(
                 saveNoteLog(
                     userId = userId,
                     noteId = noteRef.id,
-                    title = title,
-                    content = content,
+                    newTitle = title,
+                    newContent = content,
+                    newGroupName = finalGroupName,
                     action = "creada"
                 )
                 onSuccess() // Si se guarda correctamente, llamamos a onSuccess
@@ -202,27 +203,40 @@ private fun saveNote(
                 onError(error) // Si hay un error, llamamos a onError
             }
     } else {
-        db.collection("notes")
-            .document(noteId)
-            .update(
-                mapOf(
-                    "title" to title,
-                    "content" to content,
-                    "groupName" to groupName,
-                    "date" to date,
-                    "timestamp" to System.currentTimeMillis()
-                )
-            )
-            .addOnSuccessListener {
-                saveNoteLog(
-                    userId = userId,
-                    noteId = noteId,
-                    title = title,
-                    content = content,
-                    action = "actualizada"
-                )
+        val noteRef = db.collection("notes").document(noteId)
+        val finalGroupName = groupName.ifBlank { "General" }
 
-                onSuccess()
+        noteRef.get()
+            .addOnSuccessListener { document ->
+                val oldNote = document.toObject(Note::class.java)
+
+                noteRef.update(
+                    mapOf(
+                        "title" to title,
+                        "content" to content,
+                        "groupName" to finalGroupName,
+                        "date" to date,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                )
+                    .addOnSuccessListener {
+                        saveNoteLog(
+                            userId = userId,
+                            noteId = noteId,
+                            oldTitle = oldNote?.title ?: "",
+                            oldContent = oldNote?.content ?: "",
+                            oldGroupName = oldNote?.groupName ?: "General",
+                            newTitle = title,
+                            newContent = content,
+                            newGroupName = finalGroupName,
+                            action = "actualizada"
+                        )
+
+                        onSuccess()
+                    }
+                    .addOnFailureListener { error ->
+                        onError(error)
+                    }
             }
             .addOnFailureListener { error ->
                 onError(error)
@@ -267,8 +281,12 @@ private fun NoteTextField(
 private fun saveNoteLog(
     userId: String,
     noteId: String,
-    title: String,
-    content: String,
+    oldTitle: String = "",
+    oldContent: String = "",
+    oldGroupName: String = "",
+    newTitle: String = "",
+    newContent: String = "",
+    newGroupName: String = "",
     action: String
 ) {
     val db = Firebase.firestore
@@ -278,8 +296,12 @@ private fun saveNoteLog(
         id = logRef.id,
         userId = userId,
         noteId = noteId,
-        title = title,
-        content = content,
+        oldTitle = oldTitle,
+        oldContent = oldContent,
+        oldGroupName = oldGroupName,
+        newTitle = newTitle,
+        newContent = newContent,
+        newGroupName = newGroupName,
         action = action
     )
 

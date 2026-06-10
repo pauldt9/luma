@@ -123,8 +123,9 @@ fun NotesScreen(navController: NavController) {
                         saveNoteLog(
                             userId = note.userId,
                             noteId = note.id,
-                            title = note.title,
-                            content = note.content,
+                            oldTitle = note.title,
+                            oldContent = note.content,
+                            oldGroupName = note.groupName.ifBlank { "General" },
                             action = "eliminada"
                         )
                     }
@@ -262,8 +263,12 @@ private fun NoteContainer(
 private fun saveNoteLog(
     userId: String,
     noteId: String,
-    title: String,
-    content: String,
+    oldTitle: String = "",
+    oldContent: String = "",
+    oldGroupName: String = "",
+    newTitle: String = "",
+    newContent: String = "",
+    newGroupName: String = "",
     action: String
 ) {
     val db = Firebase.firestore
@@ -273,8 +278,12 @@ private fun saveNoteLog(
         id = logRef.id,
         userId = userId,
         noteId = noteId,
-        title = title,
-        content = content,
+        oldTitle = oldTitle,
+        oldContent = oldContent,
+        oldGroupName = oldGroupName,
+        newTitle = newTitle,
+        newContent = newContent,
+        newGroupName = newGroupName,
         action = action
     )
 
